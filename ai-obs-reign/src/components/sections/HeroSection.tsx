@@ -1,78 +1,200 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Play, CheckCircle, SmileIcon } from 'lucide-react';
+import { ArrowRight, Play, CheckCircle, Edit3 } from 'lucide-react';
+import { CMSDataManager, HeroSectionData } from '@/lib/cms-data';
 
 const HeroSection = () => {
-  const benefits = [
-    'Real-time AI-powered monitoring',
-    'Automated incident response',
-    'Predictive analytics and insights',
-    'Seamless DevOps integration'
-  ];
+  const [heroData, setHeroData] = useState<HeroSectionData | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  useEffect(() => {
+    setHeroData(CMSDataManager.getHeroData());
+  }, []);
+
+  if (!heroData) {
+    return <div className="pt-20 pb-0 bg-black/70 min-h-screen flex items-center justify-center">
+      <div className="text-white">Loading...</div>
+    </div>;
+  }
+
+  const handleSave = () => {
+    if (heroData) {
+      CMSDataManager.saveHeroData(heroData);
+      setIsEditMode(false);
+    }
+  };
+
+  const updateHeroData = (field: string, value: any) => {
+    if (!heroData) return;
+    
+    const keys = field.split('.');
+    const newData = { ...heroData };
+    let current: any = newData;
+    
+    for (let i = 0; i < keys.length - 1; i++) {
+      current = current[keys[i]];
+    }
+    
+    current[keys[keys.length - 1]] = value;
+    setHeroData(newData);
+  };
 
   return (
-    <section className="pt-20 pb-0 bg-black/70">
+    <section className="pt-20 pb-0 bg-black/70 relative">
+      {/* Edit Mode Toggle */}
+      <div className="absolute top-4 right-4 z-50">
+        <button
+          onClick={() => setIsEditMode(!isEditMode)}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            isEditMode 
+              ? 'bg-green-600 text-white hover:bg-green-700' 
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          <Edit3 className="w-4 h-4 inline mr-2" />
+          {isEditMode ? 'Preview' : 'Edit'}
+        </button>
+        {isEditMode && (
+          <button
+            onClick={handleSave}
+            className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
+            Save Changes
+          </button>
+        )}
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-white">
         <div className="grid grid-cols-1 w-full self-center lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Content */}
           <div className="space-y-8">
             <div className="space-y-4">
+              {/* Badge */}
               <div className="inline-flex items-center px-4 py-2 text-blue-800 rounded-full text-sm font-medium">
-                <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
-                AI-Powered Observability Platform
+                {heroData.badge.icon && <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>}
+                {isEditMode ? (
+                  <input
+                    type="text"
+                    value={heroData.badge.text}
+                    onChange={(e) => updateHeroData('badge.text', e.target.value)}
+                    className="bg-transparent border-b border-blue-400 text-blue-800 outline-none"
+                  />
+                ) : (
+                  heroData.badge.text
+                )}
               </div>
               
+              {/* Title */}
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                Transform Your
-                <span className="text-blue-400 block">DevOps Operations</span>
+                {isEditMode ? (
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={heroData.title.main}
+                      onChange={(e) => updateHeroData('title.main', e.target.value)}
+                      className="w-full bg-gray-800/50 border border-gray-600 rounded px-3 py-2 text-white outline-none focus:border-blue-400"
+                      placeholder="Main title"
+                    />
+                    <input
+                      type="text"
+                      value={heroData.title.highlight}
+                      onChange={(e) => updateHeroData('title.highlight', e.target.value)}
+                      className="w-full bg-gray-800/50 border border-gray-600 rounded px-3 py-2 text-blue-400 outline-none focus:border-blue-400"
+                      placeholder="Highlighted title"
+                    />
+                  </div>
+                ) : (
+                  <>
+                    {heroData.title.main}
+                    <span className="text-blue-400 block">{heroData.title.highlight}</span>
+                  </>
+                )}
               </h1>
               
-              <p className="text-xl text-gray-200 leading-relaxed max-w-xl">
-                R.E.I.G.N delivers intelligent observability and automation for modern workforce management teams. 
-                Monitor, analyze, and optimize your infrastructure with AI-powered insights that scale with your business.
-              </p>
+              {/* Description */}
+              <div className="text-xl text-gray-200 leading-relaxed max-w-xl">
+                {isEditMode ? (
+                  <textarea
+                    value={heroData.description}
+                    onChange={(e) => updateHeroData('description', e.target.value)}
+                    className="w-full bg-gray-800/50 border border-gray-600 rounded px-3 py-2 text-gray-200 outline-none focus:border-blue-400 min-h-[120px]"
+                    placeholder="Hero description"
+                  />
+                ) : (
+                  heroData.description
+                )}
+              </div>
             </div>
 
             {/* Benefits List */}
             <div className="space-y-3">
-              {benefits.map((benefit, index) => (
+              {heroData.benefits.map((benefit, index) => (
                 <div key={index} className="flex items-center space-x-3">
                   <CheckCircle className="h-5 w-5 text-pink-200 flex-shrink-0" />
-                  <span className="text-gray-200">{benefit}</span>
+                  {isEditMode ? (
+                    <input
+                      type="text"
+                      value={benefit}
+                      onChange={(e) => {
+                        const newBenefits = [...heroData.benefits];
+                        newBenefits[index] = e.target.value;
+                        updateHeroData('benefits', newBenefits);
+                      }}
+                      className="flex-1 bg-gray-800/50 border border-gray-600 rounded px-3 py-1 text-gray-200 outline-none focus:border-blue-400"
+                    />
+                  ) : (
+                    <span className="text-gray-200">{benefit}</span>
+                  )}
                 </div>
               ))}
+              {isEditMode && (
+                <button
+                  onClick={() => updateHeroData('benefits', [...heroData.benefits, 'New benefit'])}
+                  className="text-blue-400 hover:text-blue-300 text-sm ml-8"
+                >
+                  + Add Benefit
+                </button>
+              )}
             </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              
-              
               <Link
-                href="#demo"
+                href={heroData.cta.secondary.href}
                 className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-green-800 to-green-600 hover:bg-gray-50 text-gray-900 font-medium rounded-lg border border-gray-300 transition-colors"
               >
                 <Play className="mr-2 h-4 w-4" />
-                Watch Demo
+                {isEditMode ? (
+                  <input
+                    type="text"
+                    value={heroData.cta.secondary.text}
+                    onChange={(e) => updateHeroData('cta.secondary.text', e.target.value)}
+                    className="bg-transparent outline-none"
+                    onClick={(e) => e.preventDefault()}
+                  />
+                ) : (
+                  heroData.cta.secondary.text
+                )}
               </Link>
               <Link
-                href="#get-started"
+                href={heroData.cta.primary.href}
                 className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors group"
               >
-                Get Started Free
+                {isEditMode ? (
+                  <input
+                    type="text"
+                    value={heroData.cta.primary.text}
+                    onChange={(e) => updateHeroData('cta.primary.text', e.target.value)}
+                    className="bg-transparent outline-none"
+                    onClick={(e) => e.preventDefault()}
+                  />
+                ) : (
+                  heroData.cta.primary.text
+                )}
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
 
-            {/* Trust Indicators */}
-            {/* <div className="pt-8">
-              <p className="text-sm text-gray-300 mb-4">Trusted by leading DevOps teams</p>
-              <div className="flex items-center space-x-8 opacity-60">
-                <div className="text-gray-300 font-semibold">TechCorp</div>
-                <div className="text-gray-300 font-semibold">DataFlow</div>
-                <div className="text-gray-300 font-semibold">CloudOps</div>
-                <div className="text-gray-300 font-semibold">ScaleUp</div>
-              </div>
-            </div> */}
           </div>
 
           {/* Right Column - Visual */}
@@ -109,7 +231,7 @@ const HeroSection = () => {
 
                 {/* Mock Chart */}
                 <div className="bg-gray-950/50 rounded-lg p-4">
-                <div className="text-sm text-gray-500 mb-2">Performance Trend</div>
+                  <div className="text-sm text-gray-500 mb-2">Performance Trend</div>
                   <div className="h-20 bg-gradient-to-b from-purple-900 to-blue-800 rounded opacity-30"></div>
                 </div>
               </div>
@@ -120,9 +242,6 @@ const HeroSection = () => {
             <div className="absolute -bottom-8 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
           </div>
         </div>
-      </div>
-      <div className='bg-black mt-10 p-6'>
-        sfghjhg
       </div>
     </section>
   );
