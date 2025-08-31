@@ -2,25 +2,43 @@
 
 import { useState, useEffect } from 'react';
 import CMSHeader from '@/components/cms/CMSHeader';
-import { CMSDataManager, HeroSectionData } from '@/lib/cms-data';
+import { 
+  CMSDataManager, 
+  HeroSectionData, 
+  AboutSectionData, 
+  FeaturesSectionData, 
+  SolutionsSectionData, 
+  ContactSectionData 
+} from '@/lib/cms-data';
 import { Save, RotateCcw, Eye, Plus, Trash2 } from 'lucide-react';
 
 export default function CMSContent() {
   const [heroData, setHeroData] = useState<HeroSectionData | null>(null);
+  const [aboutData, setAboutData] = useState<AboutSectionData | null>(null);
+  const [featuresData, setFeaturesData] = useState<FeaturesSectionData | null>(null);
+  const [solutionsData, setSolutionsData] = useState<SolutionsSectionData | null>(null);
+  const [contactData, setContactData] = useState<ContactSectionData | null>(null);
   const [activeTab, setActiveTab] = useState('hero');
   const [hasChanges, setHasChanges] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
   useEffect(() => {
     setHeroData(CMSDataManager.getHeroDataSync());
+    setAboutData(CMSDataManager.getAboutDataSync());
+    setFeaturesData(CMSDataManager.getFeaturesDataSync());
+    setSolutionsData(CMSDataManager.getSolutionsDataSync());
+    setContactData(CMSDataManager.getContactDataSync());
   }, []);
 
   const handleSave = () => {
-    if (!heroData) return;
-    
     setSaveStatus('saving');
     try {
-      CMSDataManager.saveHeroDataSync(heroData);
+      if (heroData) CMSDataManager.saveHeroDataSync(heroData);
+      if (aboutData) CMSDataManager.saveAboutDataSync(aboutData);
+      if (featuresData) CMSDataManager.saveFeaturesDataSync(featuresData);
+      if (solutionsData) CMSDataManager.saveSolutionsDataSync(solutionsData);
+      if (contactData) CMSDataManager.saveContactDataSync(contactData);
+      
       setHasChanges(false);
       setSaveStatus('saved');
       setTimeout(() => setSaveStatus('idle'), 2000);
@@ -31,8 +49,12 @@ export default function CMSContent() {
   };
 
   const handleReset = () => {
-    CMSDataManager.resetHeroData();
+    CMSDataManager.resetAllData();
     setHeroData(CMSDataManager.getHeroDataSync());
+    setAboutData(CMSDataManager.getAboutDataSync());
+    setFeaturesData(CMSDataManager.getFeaturesDataSync());
+    setSolutionsData(CMSDataManager.getSolutionsDataSync());
+    setContactData(CMSDataManager.getContactDataSync());
     setHasChanges(false);
   };
 
@@ -110,10 +132,10 @@ export default function CMSContent() {
         {/* Section Tabs */}
         <div className="mb-8">
           <div className="border-b border-gray-200 dark:border-gray-700">
-            <nav className="-mb-px flex space-x-8">
+            <nav className="-mb-px flex space-x-8 overflow-x-auto">
               <button
                 onClick={() => setActiveTab('hero')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                   activeTab === 'hero'
                     ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                     : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
@@ -123,9 +145,43 @@ export default function CMSContent() {
               </button>
               <button
                 onClick={() => setActiveTab('about')}
-                className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 font-medium text-sm opacity-50 cursor-not-allowed"
+                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                  activeTab === 'about'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
               >
-                About Section <span className="text-xs">(Coming Soon)</span>
+                About Section
+              </button>
+              <button
+                onClick={() => setActiveTab('features')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                  activeTab === 'features'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                Features Section
+              </button>
+              <button
+                onClick={() => setActiveTab('solutions')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                  activeTab === 'solutions'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                Solutions Section
+              </button>
+              <button
+                onClick={() => setActiveTab('contact')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                  activeTab === 'contact'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                Contact Section
               </button>
             </nav>
           </div>
@@ -304,6 +360,143 @@ export default function CMSContent() {
                   <Eye className="w-4 h-4 mr-2 inline" />
                   Preview Site
                 </a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* About Section Editor */}
+        {activeTab === 'about' && aboutData && (
+          <div className="space-y-8">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">About Section</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Edit the About section content using the inline editor on the homepage, or use the direct editing links below.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Section Title</label>
+                  <div className="text-lg font-medium text-gray-900 dark:text-white">
+                    {aboutData.title.main} <span className="text-blue-600">{aboutData.title.highlight}</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Statistics Count</label>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{aboutData.stats.length} statistics configured</div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Values Count</label>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{aboutData.values.length} company values configured</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Features Section Editor */}
+        {activeTab === 'features' && featuresData && (
+          <div className="space-y-8">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Features Section</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Edit the Features section content using the inline editor on the homepage, or use the direct editing links below.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Section Title</label>
+                  <div className="text-lg font-medium text-gray-900 dark:text-white">
+                    {featuresData.title.main} <span className="text-blue-600">{featuresData.title.highlight}</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Features Count</label>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{featuresData.features.length} features configured</div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bottom CTA</label>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{featuresData.bottomCta.text}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Solutions Section Editor */}
+        {activeTab === 'solutions' && solutionsData && (
+          <div className="space-y-8">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Solutions Section</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Edit the Solutions section content using the inline editor on the homepage. Each solution has dynamic feature lists that can be added to, edited, and removed.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Section Title</label>
+                  <div className="text-lg font-medium text-gray-900 dark:text-white">
+                    {solutionsData.title.main} <span className="text-blue-600">{solutionsData.title.highlight}</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Solutions Overview</label>
+                  <div className="space-y-2">
+                    {solutionsData.solutions.map((solution, index) => (
+                      <div key={index} className="flex justify-between items-center text-sm">
+                        <span className="text-gray-900 dark:text-white font-medium">{solution.title}</span>
+                        <span className="text-gray-600 dark:text-gray-400">{solution.features.length} features</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Total Features</label>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {solutionsData.solutions.reduce((total, solution) => total + solution.features.length, 0)} total features across all solutions
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bottom CTA Title</label>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{solutionsData.bottomCta.title}</div>
+                </div>
+              </div>
+              
+              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-300 mb-2">Dynamic Features</h4>
+                <p className="text-sm text-blue-700 dark:text-blue-400">
+                  In edit mode, you can:
+                </p>
+                <ul className="text-sm text-blue-700 dark:text-blue-400 mt-2 space-y-1">
+                  <li>• <strong>Add features</strong>: Click "+ Add Feature" under any solution</li>
+                  <li>• <strong>Edit features</strong>: Click on any feature text to modify it</li>
+                  <li>• <strong>Remove features</strong>: Hover over a feature and click the trash icon</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Contact Section Editor */}
+        {activeTab === 'contact' && contactData && (
+          <div className="space-y-8">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Contact Section</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Edit the Contact section content using the inline editor on the homepage, or use the direct editing links below.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Section Title</label>
+                  <div className="text-lg font-medium text-gray-900 dark:text-white">
+                    {contactData.title.main} <span className="text-blue-600">{contactData.title.highlight}</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contact Methods</label>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{contactData.contactMethods.length} contact methods configured</div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Form Title</label>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{contactData.form.title}</div>
+                </div>
               </div>
             </div>
           </div>
