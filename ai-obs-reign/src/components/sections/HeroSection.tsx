@@ -7,10 +7,13 @@ import { CMSDataManager, HeroSectionData } from '@/lib/cms-data';
 
 const HeroSection = () => {
   const [heroData, setHeroData] = useState<HeroSectionData | null>(null);
+  const [originalData, setOriginalData] = useState<HeroSectionData | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
-    setHeroData(CMSDataManager.getHeroDataSync());
+    const data = CMSDataManager.getHeroDataSync();
+    setHeroData(data);
+    setOriginalData(data);
   }, []);
 
   if (!heroData) {
@@ -22,6 +25,14 @@ const HeroSection = () => {
   const handleSave = () => {
     if (heroData) {
       CMSDataManager.saveHeroDataSync(heroData);
+      setOriginalData(heroData);
+      setIsEditMode(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (originalData) {
+      setHeroData(originalData);
       setIsEditMode(false);
     }
   };
@@ -57,12 +68,20 @@ const HeroSection = () => {
           {isEditMode ? 'Preview' : 'Edit'}
         </button>
         {isEditMode && (
-          <button
-            onClick={handleSave}
-            className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-          >
-            Save Changes
-          </button>
+          <>
+            <button
+              onClick={handleCancel}
+              className="ml-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              Save Changes
+            </button>
+          </>
         )}
       </div>
 

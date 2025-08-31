@@ -14,15 +14,26 @@ const iconMap = {
 
 const AboutSection = () => {
   const [aboutData, setAboutData] = useState<AboutSectionData | null>(null);
+  const [originalData, setOriginalData] = useState<AboutSectionData | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
-    setAboutData(CMSDataManager.getAboutDataSync());
+    const data = CMSDataManager.getAboutDataSync();
+    setAboutData(data);
+    setOriginalData(data);
   }, []);
 
   const handleSave = () => {
     if (aboutData) {
       CMSDataManager.saveAboutDataSync(aboutData);
+      setOriginalData(aboutData);
+      setIsEditMode(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (originalData) {
+      setAboutData(originalData);
       setIsEditMode(false);
     }
   };
@@ -64,12 +75,20 @@ const AboutSection = () => {
           {isEditMode ? 'Preview' : 'Edit'}
         </button>
         {isEditMode && (
-          <button
-            onClick={handleSave}
-            className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-          >
-            Save Changes
-          </button>
+          <>
+            <button
+              onClick={handleCancel}
+              className="ml-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              Save Changes
+            </button>
+          </>
         )}
       </div>
 

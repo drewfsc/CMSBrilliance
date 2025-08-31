@@ -14,15 +14,26 @@ const iconMap = {
 
 const ContactSection = () => {
   const [contactData, setContactData] = useState<ContactSectionData | null>(null);
+  const [originalData, setOriginalData] = useState<ContactSectionData | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
-    setContactData(CMSDataManager.getContactDataSync());
+    const data = CMSDataManager.getContactDataSync();
+    setContactData(data);
+    setOriginalData(data);
   }, []);
 
   const handleSave = () => {
     if (contactData) {
       CMSDataManager.saveContactDataSync(contactData);
+      setOriginalData(contactData);
+      setIsEditMode(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (originalData) {
+      setContactData(originalData);
       setIsEditMode(false);
     }
   };
@@ -64,12 +75,20 @@ const ContactSection = () => {
           {isEditMode ? 'Preview' : 'Edit'}
         </button>
         {isEditMode && (
-          <button
-            onClick={handleSave}
-            className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-          >
-            Save Changes
-          </button>
+          <>
+            <button
+              onClick={handleCancel}
+              className="ml-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              Save Changes
+            </button>
+          </>
         )}
       </div>
 

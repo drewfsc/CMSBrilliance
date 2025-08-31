@@ -28,15 +28,26 @@ const iconMap = {
 
 const SolutionsSection = () => {
   const [solutionsData, setSolutionsData] = useState<SolutionsSectionData | null>(null);
+  const [originalData, setOriginalData] = useState<SolutionsSectionData | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
-    setSolutionsData(CMSDataManager.getSolutionsDataSync());
+    const data = CMSDataManager.getSolutionsDataSync();
+    setSolutionsData(data);
+    setOriginalData(data);
   }, []);
 
   const handleSave = () => {
     if (solutionsData) {
       CMSDataManager.saveSolutionsDataSync(solutionsData);
+      setOriginalData(solutionsData);
+      setIsEditMode(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (originalData) {
+      setSolutionsData(originalData);
       setIsEditMode(false);
     }
   };
@@ -114,12 +125,20 @@ const SolutionsSection = () => {
           {isEditMode ? 'Preview' : 'Edit'}
         </button>
         {isEditMode && (
-          <button
-            onClick={handleSave}
-            className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-          >
-            Save Changes
-          </button>
+          <>
+            <button
+              onClick={handleCancel}
+              className="ml-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              Save Changes
+            </button>
+          </>
         )}
       </div>
 

@@ -34,15 +34,26 @@ const iconMap = {
 
 const FeaturesSection = () => {
   const [featuresData, setFeaturesData] = useState<FeaturesSectionData | null>(null);
+  const [originalData, setOriginalData] = useState<FeaturesSectionData | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
-    setFeaturesData(CMSDataManager.getFeaturesDataSync());
+    const data = CMSDataManager.getFeaturesDataSync();
+    setFeaturesData(data);
+    setOriginalData(data);
   }, []);
 
   const handleSave = () => {
     if (featuresData) {
       CMSDataManager.saveFeaturesDataSync(featuresData);
+      setOriginalData(featuresData);
+      setIsEditMode(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (originalData) {
+      setFeaturesData(originalData);
       setIsEditMode(false);
     }
   };
@@ -84,12 +95,20 @@ const FeaturesSection = () => {
           {isEditMode ? 'Preview' : 'Edit'}
         </button>
         {isEditMode && (
-          <button
-            onClick={handleSave}
-            className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-          >
-            Save Changes
-          </button>
+          <>
+            <button
+              onClick={handleCancel}
+              className="ml-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              Save Changes
+            </button>
+          </>
         )}
       </div>
 
