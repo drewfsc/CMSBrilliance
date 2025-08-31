@@ -1,25 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
-
-interface DarkModeContextType {
-  isDarkMode: boolean;
-  toggleDarkMode: () => void;
-}
-
-const DarkModeContext = createContext<DarkModeContextType | undefined>(undefined);
-
-export function DarkModeProvider({ children }: { children: ReactNode }) {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
-
-  return (
-    <DarkModeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
-      {children}
-    </DarkModeContext.Provider>
-  );
-}
+import { DarkModeProvider } from '@/lib/dark-mode-context';
 
 export default function CMSLayout({
   children,

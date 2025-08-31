@@ -121,13 +121,13 @@ export default function CMSDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <CMSHeader title="Dashboard" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Content Management</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Content Management</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
             Manage your OpsCompanion website content and settings
           </p>
         </div>
@@ -137,12 +137,12 @@ export default function CMSDashboard() {
           {quickStats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <div key={index} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.label}</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.label}</p>
                     <div className="flex items-baseline space-x-2">
-                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
                       {stat.change !== '+0' && (
                         <span className="text-sm text-green-600 font-medium">
                           {stat.change}
@@ -160,7 +160,7 @@ export default function CMSDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Management Grid */}
           <div className="lg:col-span-2">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Content Management</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Content Management</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {menuItems.map((item) => {
                 const Icon = item.icon;
@@ -168,21 +168,21 @@ export default function CMSDashboard() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="block p-6 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all duration-200 group"
+                    className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 group"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className={`p-3 rounded-lg ${item.color} group-hover:scale-110 transition-transform`}>
                         <Icon className="w-6 h-6" />
                       </div>
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                      <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
                         {item.stats}
                       </span>
                     </div>
                     
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.name}</h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{item.name}</h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{item.description}</p>
                     
-                    <div className="mt-4 flex items-center text-blue-600 text-sm font-medium">
+                    <div className="mt-4 flex items-center text-blue-600 dark:text-blue-400 text-sm font-medium">
                       <span>Manage</span>
                       <Edit className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                     </div>
@@ -195,9 +195,9 @@ export default function CMSDashboard() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <TrendingUp className="w-5 h-5 mr-2 text-blue-600" />
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <TrendingUp className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
                 Quick Actions
               </h3>
               
@@ -205,30 +205,30 @@ export default function CMSDashboard() {
                 <Link
                   href="/"
                   target="_blank"
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                 >
                   <div className="flex items-center space-x-3">
-                    <Eye className="w-4 h-4 text-gray-600" />
-                    <span className="text-sm font-medium text-gray-900">Preview Site</span>
+                    <Eye className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">Preview Site</span>
                   </div>
                 </Link>
                 
                 <Link
                   href="/cms/content"
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                 >
                   <div className="flex items-center space-x-3">
-                    <Edit className="w-4 h-4 text-gray-600" />
-                    <span className="text-sm font-medium text-gray-900">Quick Edit</span>
+                    <Edit className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">Quick Edit</span>
                   </div>
                 </Link>
               </div>
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <Calendar className="w-5 h-5 mr-2 text-blue-600" />
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <Calendar className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
                 Recent Activity
               </h3>
               
@@ -237,14 +237,14 @@ export default function CMSDashboard() {
                   const Icon = activity.icon;
                   return (
                     <div key={index} className="flex items-start space-x-3">
-                      <div className={`p-2 rounded-lg bg-gray-100`}>
+                      <div className={`p-2 rounded-lg bg-gray-100 dark:bg-gray-700`}>
                         <Icon className={`w-4 h-4 ${activity.color}`} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                           {activity.action}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           by {activity.user} • {activity.time}
                         </p>
                       </div>
