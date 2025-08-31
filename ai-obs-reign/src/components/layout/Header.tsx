@@ -24,9 +24,13 @@ const Header = () => {
     // Check authentication status
     const checkAuth = () => {
       const loggedIn = CMSAuthManager.isLoggedIn();
+      const userName = CMSAuthManager.getUserDisplayName();
+      
+      console.log('Header auth check:', { loggedIn, userName }); // Debug log
+      
       setIsLoggedIn(loggedIn);
       if (loggedIn) {
-        setUserDisplayName(CMSAuthManager.getUserDisplayName());
+        setUserDisplayName(userName);
       }
     };
 
@@ -115,6 +119,25 @@ const Header = () => {
                 >
                   Get Started
                 </Link>
+                {/* Quick Test Login Button */}
+                <button
+                  onClick={() => {
+                    CMSAuthManager.login('demo@reign.com', 'demo123');
+                    const checkAuth = () => {
+                      const loggedIn = CMSAuthManager.isLoggedIn();
+                      const userName = CMSAuthManager.getUserDisplayName();
+                      setIsLoggedIn(loggedIn);
+                      if (loggedIn) {
+                        setUserDisplayName(userName);
+                      }
+                    };
+                    checkAuth();
+                  }}
+                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-xs font-medium transition-colors"
+                  title="Quick test login"
+                >
+                  Test Login
+                </button>
               </>
             )}
           </div>

@@ -15,6 +15,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { CMSDataManager, SolutionsSectionData } from '@/lib/cms-data';
+import { CMSAuthManager } from '@/lib/cms-auth';
 
 // Icon mapping for dynamic rendering
 const iconMap = {
@@ -30,11 +31,13 @@ const SolutionsSection = () => {
   const [solutionsData, setSolutionsData] = useState<SolutionsSectionData | null>(null);
   const [originalData, setOriginalData] = useState<SolutionsSectionData | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const data = CMSDataManager.getSolutionsDataSync();
     setSolutionsData(data);
     setOriginalData(data);
+    setIsAuthenticated(CMSAuthManager.isLoggedIn());
   }, []);
 
   const handleSave = () => {
@@ -111,8 +114,9 @@ const SolutionsSection = () => {
 
   return (
     <section id="solutions" className="py-20 bg-black relative">
-      {/* Edit Mode Toggle */}
-      <div className="absolute top-4 right-4 z-50">
+      {/* Edit Mode Toggle - Only visible when authenticated */}
+      {isAuthenticated && (
+        <div className="absolute top-4 right-4 z-50">
         <button
           onClick={() => setIsEditMode(!isEditMode)}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -140,7 +144,8 @@ const SolutionsSection = () => {
             </button>
           </>
         )}
-      </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}

@@ -4,16 +4,21 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Play, CheckCircle, Edit3 } from 'lucide-react';
 import { CMSDataManager, HeroSectionData } from '@/lib/cms-data';
+import { CMSAuthManager } from '@/lib/cms-auth';
 
 const HeroSection = () => {
   const [heroData, setHeroData] = useState<HeroSectionData | null>(null);
   const [originalData, setOriginalData] = useState<HeroSectionData | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const data = CMSDataManager.getHeroDataSync();
     setHeroData(data);
     setOriginalData(data);
+    
+    // Check authentication status
+    setIsAuthenticated(CMSAuthManager.isLoggedIn());
   }, []);
 
   if (!heroData) {
@@ -54,36 +59,38 @@ const HeroSection = () => {
 
   return (
     <section className="pt-20 pb-0 bg-black/70 relative">
-      {/* Edit Mode Toggle */}
-      <div className="absolute top-4 right-4 z-50">
-        <button
-          onClick={() => setIsEditMode(!isEditMode)}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            isEditMode 
-              ? 'bg-green-600 text-white hover:bg-green-700' 
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-          }`}
-        >
-          <Edit3 className="w-4 h-4 inline mr-2" />
-          {isEditMode ? 'Preview' : 'Edit'}
-        </button>
-        {isEditMode && (
-          <>
-            <button
-              onClick={handleCancel}
-              className="ml-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-            >
-              Save Changes
-            </button>
-          </>
-        )}
-      </div>
+      {/* Edit Mode Toggle - Only visible when authenticated */}
+      {isAuthenticated && (
+        <div className="absolute top-4 right-4 z-50">
+          <button
+            onClick={() => setIsEditMode(!isEditMode)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              isEditMode 
+                ? 'bg-green-600 text-white hover:bg-green-700' 
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            }`}
+          >
+            <Edit3 className="w-4 h-4 inline mr-2" />
+            {isEditMode ? 'Preview' : 'Edit'}
+          </button>
+          {isEditMode && (
+            <>
+              <button
+                onClick={handleCancel}
+                className="ml-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                Save Changes
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-white">
         <div className="grid grid-cols-1 w-full self-center lg:grid-cols-2 gap-12 items-center">

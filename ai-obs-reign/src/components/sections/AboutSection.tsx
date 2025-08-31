@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Target, Zap, Award, Edit3 } from 'lucide-react';
 import { CMSDataManager, AboutSectionData } from '@/lib/cms-data';
+import { CMSAuthManager } from '@/lib/cms-auth';
 
 // Icon mapping for dynamic rendering
 const iconMap = {
@@ -16,11 +17,13 @@ const AboutSection = () => {
   const [aboutData, setAboutData] = useState<AboutSectionData | null>(null);
   const [originalData, setOriginalData] = useState<AboutSectionData | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const data = CMSDataManager.getAboutDataSync();
     setAboutData(data);
     setOriginalData(data);
+    setIsAuthenticated(CMSAuthManager.isLoggedIn());
   }, []);
 
   const handleSave = () => {
@@ -61,8 +64,9 @@ const AboutSection = () => {
 
   return (
     <section id="about" className="py-20 bg-black relative">
-      {/* Edit Mode Toggle */}
-      <div className="absolute top-4 right-4 z-50">
+      {/* Edit Mode Toggle - Only visible when authenticated */}
+      {isAuthenticated && (
+        <div className="absolute top-4 right-4 z-50">
         <button
           onClick={() => setIsEditMode(!isEditMode)}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -90,7 +94,8 @@ const AboutSection = () => {
             </button>
           </>
         )}
-      </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}

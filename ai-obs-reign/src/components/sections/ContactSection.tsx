@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, MessageSquare, Edit3 } from 'lucide-react';
 import { CMSDataManager, ContactSectionData } from '@/lib/cms-data';
+import { CMSAuthManager } from '@/lib/cms-auth';
 
 // Icon mapping for dynamic rendering
 const iconMap = {
@@ -16,11 +17,13 @@ const ContactSection = () => {
   const [contactData, setContactData] = useState<ContactSectionData | null>(null);
   const [originalData, setOriginalData] = useState<ContactSectionData | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const data = CMSDataManager.getContactDataSync();
     setContactData(data);
     setOriginalData(data);
+    setIsAuthenticated(CMSAuthManager.isLoggedIn());
   }, []);
 
   const handleSave = () => {
@@ -61,8 +64,9 @@ const ContactSection = () => {
 
   return (
     <section id="contact" className="py-20 bg-gray-900 text-white relative">
-      {/* Edit Mode Toggle */}
-      <div className="absolute top-4 right-4 z-50">
+      {/* Edit Mode Toggle - Only visible when authenticated */}
+      {isAuthenticated && (
+        <div className="absolute top-4 right-4 z-50">
         <button
           onClick={() => setIsEditMode(!isEditMode)}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -90,7 +94,8 @@ const ContactSection = () => {
             </button>
           </>
         )}
-      </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
