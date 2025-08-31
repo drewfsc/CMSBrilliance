@@ -70,7 +70,7 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section id="features" className="py-20 bg-white">
+    <section id="features" className="py-20 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
@@ -79,12 +79,12 @@ const FeaturesSection = () => {
             Platform Features
           </div>
           
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Everything You Need for
-            <span className="text-blue-600 block">Complete Observability</span>
+            <span className="text-blue-400 block">Complete Observability</span>
           </h2>
           
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-200 max-w-3xl mx-auto">
             Our comprehensive platform provides all the tools and insights you need to monitor, 
             analyze, and optimize your DevOps infrastructure with AI-powered intelligence.
           </p>
@@ -97,24 +97,24 @@ const FeaturesSection = () => {
             return (
               <div
                 key={index}
-                className="group relative bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                className="group relative bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-8 hover:shadow-lg hover:bg-white/20 transition-all duration-300 hover:-translate-y-1"
               >
                 <div className="flex items-center mb-4">
-                  <div className={`p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50 transition-colors`}>
+                  <div className={`p-3 rounded-lg bg-white/20 group-hover:bg-white/30 transition-colors`}>
                     <Icon className={`h-6 w-6 ${feature.color}`} />
                   </div>
                 </div>
                 
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                <h3 className="text-xl font-semibold text-white mb-3">
                   {feature.title}
                 </h3>
                 
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-200 leading-relaxed">
                   {feature.description}
                 </p>
 
                 {/* Hover Effect Border */}
-                <div className="absolute inset-0 rounded-xl border-2 border-transparent group-hover:border-blue-200 transition-colors pointer-events-none"></div>
+                <div className="absolute inset-0 rounded-xl border-2 border-transparent group-hover:border-blue-400 transition-colors pointer-events-none"></div>
               </div>
             );
           })}
@@ -122,19 +122,22 @@ const FeaturesSection = () => {
 
         {/* Bottom CTA */}
         <div className="text-center mt-16">
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-200 mb-6">
             Ready to experience the power of AI-driven observability?
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
               Start Free Trial
             </button>
-            <button className="px-8 py-3 bg-white hover:bg-gray-50 text-gray-900 font-medium rounded-lg border border-gray-300 transition-colors">
+            <button className="px-8 py-3 bg-white/20 hover:bg-white/30 text-white font-medium rounded-lg border border-white/30 transition-colors backdrop-blur-sm">
               Schedule Demo
             </button>
           </div>
         </div>
       </div>
+      
+      {/* Gradient transition to white background */}
+      <div className="h-32 bg-gradient-to-b from-transparent to-white"></div>
     </section>
   );
 };

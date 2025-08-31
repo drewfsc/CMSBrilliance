@@ -11,7 +11,7 @@ const HeroSection = () => {
   ];
 
   return (
-    <section className="pt-20 pb-16 bg-gradient-to-br from-blue-50 to-indigo-100">
+    <section className="pt-20 pb-16 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Content */}
@@ -22,12 +22,12 @@ const HeroSection = () => {
                 AI-Powered Observability Platform
               </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
                 Transform Your
-                <span className="text-blue-600 block">DevOps Operations</span>
+                <span className="text-blue-400 block">DevOps Operations</span>
               </h1>
               
-              <p className="text-xl text-gray-600 leading-relaxed max-w-xl">
+              <p className="text-xl text-gray-200 leading-relaxed max-w-xl">
                 OpsCompanion delivers intelligent observability and automation for modern DevOps teams. 
                 Monitor, analyze, and optimize your infrastructure with AI-powered insights that scale with your business.
               </p>
@@ -38,7 +38,7 @@ const HeroSection = () => {
               {benefits.map((benefit, index) => (
                 <div key={index} className="flex items-center space-x-3">
                   <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700">{benefit}</span>
+                  <span className="text-gray-200">{benefit}</span>
                 </div>
               ))}
             </div>
@@ -64,12 +64,12 @@ const HeroSection = () => {
 
             {/* Trust Indicators */}
             <div className="pt-8">
-              <p className="text-sm text-gray-500 mb-4">Trusted by leading DevOps teams</p>
+              <p className="text-sm text-gray-300 mb-4">Trusted by leading DevOps teams</p>
               <div className="flex items-center space-x-8 opacity-60">
-                <div className="text-gray-400 font-semibold">TechCorp</div>
-                <div className="text-gray-400 font-semibold">DataFlow</div>
-                <div className="text-gray-400 font-semibold">CloudOps</div>
-                <div className="text-gray-400 font-semibold">ScaleUp</div>
+                <div className="text-gray-300 font-semibold">TechCorp</div>
+                <div className="text-gray-300 font-semibold">DataFlow</div>
+                <div className="text-gray-300 font-semibold">CloudOps</div>
+                <div className="text-gray-300 font-semibold">ScaleUp</div>
               </div>
             </div>
           </div>
