@@ -1,7 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Send, CheckCircle, AlertCircle, Play, ArrowRight, Mail, User, Building, Phone } from 'lucide-react';
+import { X, CheckCircle, AlertCircle, Play, ArrowRight, Mail, User, Building, Phone } from 'lucide-react';
+
+// Extend Window interface for MailChimp validation
+declare global {
+  interface Window {
+    jQuery?: unknown;
+    fnames?: string[];
+    ftypes?: string[];
+  }
+}
 
 interface LeadCaptureModalProps {
   isOpen: boolean;
@@ -60,17 +69,17 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
       document.body.appendChild(script);
 
       script.onload = () => {
-        if (typeof window !== 'undefined' && (window as any).jQuery) {
-          (window as any).fnames = new Array();
-          (window as any).ftypes = new Array();
-          (window as any).fnames[0] = 'EMAIL';
-          (window as any).ftypes[0] = 'email';
-          (window as any).fnames[1] = 'FNAME';
-          (window as any).ftypes[1] = 'text';
-          (window as any).fnames[2] = 'LNAME';
-          (window as any).ftypes[2] = 'text';
-          (window as any).fnames[4] = 'PHONE';
-          (window as any).ftypes[4] = 'phone';
+        if (typeof window !== 'undefined' && window.jQuery) {
+          window.fnames = [];
+          window.ftypes = [];
+          window.fnames[0] = 'EMAIL';
+          window.ftypes[0] = 'email';
+          window.fnames[1] = 'FNAME';
+          window.ftypes[1] = 'text';
+          window.fnames[2] = 'LNAME';
+          window.ftypes[2] = 'text';
+          window.fnames[4] = 'PHONE';
+          window.ftypes[4] = 'phone';
         }
       };
 
@@ -115,7 +124,7 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
       submitFormData.append('tags', '3146512'); // Hidden tag from form
       submitFormData.append('b_51c8d9860074f1c7205c2f452_3e97664d88', ''); // Honeypot
 
-      const response = await fetch(
+      await fetch(
         'https://mindfulmeasuresinc.us21.list-manage.com/subscribe/post?u=51c8d9860074f1c7205c2f452&id=3e97664d88&f_id=00ec42e6f0',
         {
           method: 'POST',
