@@ -5,11 +5,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Menu, X, LogOut, Settings } from 'lucide-react';
 import { CMSAuthManager } from '@/lib/cms-auth';
+import LeadCaptureModal from '@/components/ui/LeadCaptureModal';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userDisplayName, setUserDisplayName] = useState('');
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const [isGetStartedModalOpen, setIsGetStartedModalOpen] = useState(false);
   const router = useRouter();
 
   const navigation = [
@@ -107,18 +110,18 @@ const Header = () => {
               </>
             ) : (
               <>
-                <Link
-                  href="#demo"
+                <button
+                  onClick={() => setIsDemoModalOpen(true)}
                   className="text-white/80 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Request Demo
-                </Link>
-                <Link
-                  href="#get-started"
+                </button>
+                <button
+                  onClick={() => setIsGetStartedModalOpen(true)}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Get Started
-                </Link>
+                </button>
                 {/* Quick Test Login Button */}
                 <button
                   onClick={() => {
@@ -205,20 +208,24 @@ const Header = () => {
                   </>
                 ) : (
                   <>
-                    <Link
-                      href="#demo"
-                      className="block text-white/80 hover:text-white px-3 py-2 rounded-md text-base font-medium"
-                      onClick={() => setIsMenuOpen(false)}
+                    <button
+                      onClick={() => {
+                        setIsDemoModalOpen(true);
+                        setIsMenuOpen(false);
+                      }}
+                      className="block text-white/80 hover:text-white px-3 py-2 rounded-md text-base font-medium w-full text-left"
                     >
                       Request Demo
-                    </Link>
-                    <Link
-                      href="#get-started"
-                      className="block bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-base font-medium text-center"
-                      onClick={() => setIsMenuOpen(false)}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsGetStartedModalOpen(true);
+                        setIsMenuOpen(false);
+                      }}
+                      className="block bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-base font-medium text-center w-full"
                     >
                       Get Started
-                    </Link>
+                    </button>
                   </>
                 )}
               </div>
@@ -226,6 +233,19 @@ const Header = () => {
           </div>
         )}
       </nav>
+
+      {/* Lead Capture Modals */}
+      <LeadCaptureModal
+        isOpen={isDemoModalOpen}
+        onClose={() => setIsDemoModalOpen(false)}
+        type="demo"
+      />
+      
+      <LeadCaptureModal
+        isOpen={isGetStartedModalOpen}
+        onClose={() => setIsGetStartedModalOpen(false)}
+        type="get-started"
+      />
     </header>
   );
 };
