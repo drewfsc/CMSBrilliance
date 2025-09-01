@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, MessageSquare, Edit3 } from 'lucide-react';
 import { CMSDataManager, ContactSectionData } from '@/lib/cms-data';
 import { CMSAuthManager } from '@/lib/cms-auth';
+import StyledMailChimpForm from '@/components/ui/StyledMailChimpForm';
+import LeadCaptureModal from '@/components/ui/LeadCaptureModal';
 
 // Icon mapping for dynamic rendering
 const iconMap = {
@@ -18,6 +20,7 @@ const ContactSection = () => {
   const [originalData, setOriginalData] = useState<ContactSectionData | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
 
   useEffect(() => {
     const data = CMSDataManager.getContactDataSync();
@@ -232,93 +235,32 @@ const ContactSection = () => {
             </div>
           </div>
 
-          {/* Right Column - Contact Form */}
-          <div className="bg-gray-800 rounded-2xl p-8">
-            <h3 className="text-2xl font-bold text-white mb-6">
-              {isEditMode ? (
-                <input
-                  type="text"
-                  value={contactData.form.title}
-                  onChange={(e) => updateContactData('form.title', e.target.value)}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white outline-none focus:border-blue-400"
-                />
-              ) : (
-                contactData.form.title
-              )}
-            </h3>
-            
-            <form className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-300 mb-2">
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-black"
-                    placeholder="John"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-300 mb-2">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-black"
-                    placeholder="Doe"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-black"
-                  placeholder="john@company.com"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="company" className="block text-sm font-medium text-gray-300 mb-2">
-                  Company
-                </label>
-                <input
-                  type="text"
-                  id="company"
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-black"
-                  placeholder="Your Company"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  rows={4}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-black resize-none"
-                  placeholder="Tell us about your observability challenges..."
-                ></textarea>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
-              >
-                Send Message
-              </button>
-            </form>
+                     {/* Right Column - MailChimp Form */}
+           <div className="bg-gray-800 rounded-2xl p-8">
+             <h3 className="text-2xl font-bold text-white mb-6">
+               {isEditMode ? (
+                 <input
+                   type="text"
+                   value={contactData.form.title}
+                   onChange={(e) => updateContactData('form.title', e.target.value)}
+                   className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white outline-none focus:border-blue-400"
+                 />
+               ) : (
+                 contactData.form.title
+               )}
+             </h3>
+                         
+            <StyledMailChimpForm />
           </div>
         </div>
       </div>
+
+      {/* Lead Capture Modal */}
+      <LeadCaptureModal
+        isOpen={isDemoModalOpen}
+        onClose={() => setIsDemoModalOpen(false)}
+        type="demo"
+      />
     </section>
   );
 };

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { DarkModeProvider } from '@/lib/dark-mode-context';
+import LeadCaptureModal from '@/components/ui/LeadCaptureModal';
+
 
 const inter = Inter({
   subsets: ["latin"],

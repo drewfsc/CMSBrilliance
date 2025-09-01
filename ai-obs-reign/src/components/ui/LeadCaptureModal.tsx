@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { X, Send, CheckCircle, AlertCircle, Play, ArrowRight } from 'lucide-react';
-import { MailChimpManager, FormValidator } from '@/lib/mailchimp';
+import React, { useState, useEffect } from 'react';
+import { X, Send, CheckCircle, AlertCircle, Play, ArrowRight, Mail, User, Building, Phone } from 'lucide-react';
 
 interface LeadCaptureModalProps {
   isOpen: boolean;
@@ -20,11 +19,10 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
   description
 }) => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
     email: '',
-    company: '',
-    message: ''
+    fullName: '',
+    organization: '',
+    phone: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -33,9 +31,9 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
 
   const defaultContent = {
     demo: {
-      title: 'Request a Demo',
+      title: 'Schedule a Demo',
       description: 'See R.E.I.G.N in action with a personalized demo tailored to your infrastructure needs.',
-      buttonText: 'Request Demo',
+      buttonText: 'Schedule Demo',
       icon: Play
     },
     'get-started': {
@@ -53,61 +51,98 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
     icon: defaultContent[type].icon
   };
 
+  // Load MailChimp validation script
+  useEffect(() => {
+    if (isOpen) {
+      const script = document.createElement('script');
+      script.src = '//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js';
+      script.async = true;
+      document.body.appendChild(script);
+
+      script.onload = () => {
+        if (typeof window !== 'undefined' && (window as any).jQuery) {
+          (window as any).fnames = new Array();
+          (window as any).ftypes = new Array();
+          (window as any).fnames[0] = 'EMAIL';
+          (window as any).ftypes[0] = 'email';
+          (window as any).fnames[1] = 'FNAME';
+          (window as any).ftypes[1] = 'text';
+          (window as any).fnames[2] = 'LNAME';
+          (window as any).ftypes[2] = 'text';
+          (window as any).fnames[4] = 'PHONE';
+          (window as any).ftypes[4] = 'phone';
+        }
+      };
+
+      return () => {
+        if (document.body.contains(script)) {
+          document.body.removeChild(script);
+        }
+      };
+    }
+  }, [isOpen]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setFormErrors([]);
     setSubmitStatus('idle');
 
-    // Validate form
-    const validation = FormValidator.validateContactForm(formData);
-    if (!validation.isValid) {
-      setFormErrors(validation.errors);
+    // Basic validation
+    const errors: string[] = [];
+    if (!formData.email) errors.push('Email is required');
+    if (!formData.fullName) errors.push('Full name is required');
+    if (!formData.organization) errors.push('Organization name is required');
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (formData.email && !emailRegex.test(formData.email)) {
+      errors.push('Please enter a valid email address');
+    }
+
+    if (errors.length > 0) {
+      setFormErrors(errors);
       setIsSubmitting(false);
       return;
     }
 
     try {
-      const result = type === 'demo' 
-        ? await MailChimpManager.submitDemoRequest({
-            email: formData.email,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            company: formData.company,
-            message: formData.message
-          })
-        : await MailChimpManager.submitGetStarted({
-            email: formData.email,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            company: formData.company,
-            message: formData.message
-          });
+      // Submit directly to MailChimp endpoint
+      const submitFormData = new FormData();
+      submitFormData.append('EMAIL', formData.email);
+      submitFormData.append('FNAME', formData.fullName);
+      submitFormData.append('LNAME', formData.organization);
+      submitFormData.append('PHONE', formData.phone);
+      submitFormData.append('tags', '3146512'); // Hidden tag from form
+      submitFormData.append('b_51c8d9860074f1c7205c2f452_3e97664d88', ''); // Honeypot
 
-      if (result.success) {
-        setSubmitStatus('success');
-        setSubmitMessage(
-          type === 'demo' 
-            ? 'Demo request submitted! Our team will contact you within 24 hours.'
-            : 'Welcome aboard! Check your email for next steps to get started.'
-        );
-        
-        // Reset form
-        setFormData({
-          firstName: '',
-          lastName: '',
-          email: '',
-          company: '',
-          message: ''
-        });
-      } else {
-        setSubmitStatus('error');
-        setSubmitMessage(result.message || 'Failed to submit. Please try again.');
-      }
+      const response = await fetch(
+        'https://mindfulmeasuresinc.us21.list-manage.com/subscribe/post?u=51c8d9860074f1c7205c2f452&id=3e97664d88&f_id=00ec42e6f0',
+        {
+          method: 'POST',
+          body: submitFormData,
+          mode: 'no-cors'
+        }
+      );
+
+      setSubmitStatus('success');
+      setSubmitMessage(
+        type === 'demo' 
+          ? 'Demo request submitted! Our team will contact you within 24 hours.'
+          : 'Welcome aboard! Check your email for next steps to get started.'
+      );
+      
+      // Reset form
+      setFormData({
+        email: '',
+        fullName: '',
+        organization: '',
+        phone: ''
+      });
+
     } catch (error) {
       setSubmitStatus('error');
       setSubmitMessage('Network error. Please check your connection and try again.');
-      console.error('Lead capture error:', error);
+      console.error('Form submission error:', error);
     }
 
     setIsSubmitting(false);
@@ -126,11 +161,10 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
       // Reset form state when closing
       setTimeout(() => {
         setFormData({
-          firstName: '',
-          lastName: '',
           email: '',
-          company: '',
-          message: ''
+          fullName: '',
+          organization: '',
+          phone: ''
         });
         setSubmitStatus('idle');
         setSubmitMessage('');
@@ -201,38 +235,10 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  First Name *
-                </label>
-                <input
-                  type="text"
-                  value={formData.firstName}
-                  onChange={(e) => updateFormData('firstName', e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="John"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Last Name *
-                </label>
-                <input
-                  type="text"
-                  value={formData.lastName}
-                  onChange={(e) => updateFormData('lastName', e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Doe"
-                  required
-                />
-              </div>
-            </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Email *
+                <Mail className="w-4 h-4 inline mr-2" />
+                Email Address *
               </label>
               <input
                 type="email"
@@ -246,32 +252,45 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
 
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Company
+                <User className="w-4 h-4 inline mr-2" />
+                Full Name *
               </label>
               <input
                 type="text"
-                value={formData.company}
-                onChange={(e) => updateFormData('company', e.target.value)}
+                value={formData.fullName}
+                onChange={(e) => updateFormData('fullName', e.target.value)}
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Your Company"
+                placeholder="John Doe"
+                required
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                {type === 'demo' ? 'Tell us about your needs' : 'Additional information'} *
+                <Building className="w-4 h-4 inline mr-2" />
+                Organization Name *
               </label>
-              <textarea
-                rows={3}
-                value={formData.message}
-                onChange={(e) => updateFormData('message', e.target.value)}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                placeholder={
-                  type === 'demo' 
-                    ? 'Describe your current observability challenges...'
-                    : 'What brings you to R.E.I.G.N?'
-                }
+              <input
+                type="text"
+                value={formData.organization}
+                onChange={(e) => updateFormData('organization', e.target.value)}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Your Company"
                 required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                <Phone className="w-4 h-4 inline mr-2" />
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => updateFormData('phone', e.target.value)}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="+1 (555) 123-4567"
               />
             </div>
 

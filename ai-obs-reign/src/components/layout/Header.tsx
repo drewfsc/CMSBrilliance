@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Menu, X, LogOut, Settings } from 'lucide-react';
 import { CMSAuthManager } from '@/lib/cms-auth';
-import LeadCaptureModal from '@/components/ui/LeadCaptureModal';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -234,18 +233,7 @@ const Header = () => {
         )}
       </nav>
 
-      {/* Lead Capture Modals */}
-      <LeadCaptureModal
-        isOpen={isDemoModalOpen}
-        onClose={() => setIsDemoModalOpen(false)}
-        type="demo"
-      />
-      
-      <LeadCaptureModal
-        isOpen={isGetStartedModalOpen}
-        onClose={() => setIsGetStartedModalOpen(false)}
-        type="get-started"
-      />
+    
     </header>
   );
 };
