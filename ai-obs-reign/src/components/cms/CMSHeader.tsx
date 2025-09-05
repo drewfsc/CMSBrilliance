@@ -1,11 +1,11 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Home, LogOut, User } from 'lucide-react';
 import { useDarkMode } from '@/lib/dark-mode-context';
-import { CMSAuthManager } from '@/lib/cms-auth';
-import Switch from '../ui/Sunny';
+import { CMSAuthManager, CMSUser } from '@/lib/cms-auth';
 
 interface CMSHeaderProps {
   title: string;
@@ -15,6 +15,17 @@ interface CMSHeaderProps {
 const CMSHeader: React.FC<CMSHeaderProps> = ({ title, showBackButton = false }) => {
   const { isDark, toggle } = useDarkMode();
   const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<CMSUser | null>(null);
+  const [userDisplayName, setUserDisplayName] = useState('');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const user = CMSAuthManager.getCurrentUser();
+    const displayName = CMSAuthManager.getUserDisplayName();
+    setCurrentUser(user);
+    setUserDisplayName(displayName);
+  }, []);
 
   const handleLogout = () => {
     // Use the auth manager to handle logout
@@ -23,9 +34,6 @@ const CMSHeader: React.FC<CMSHeaderProps> = ({ title, showBackButton = false }) 
     // Redirect to homepage
     router.push('/');
   };
-
-  const currentUser = CMSAuthManager.getCurrentUser();
-  const userDisplayName = CMSAuthManager.getUserDisplayName();
   
   return (
     <header className="bg-black dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -54,17 +62,22 @@ const CMSHeader: React.FC<CMSHeaderProps> = ({ title, showBackButton = false }) 
           </div>
           
           <div className="flex items-center space-x-4">
-            {/* User Info */}
-            {currentUser && (
-              <div className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  {userDisplayName}
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">
-                  {currentUser.role}
-                </span>
-              </div>
+            {/* User Info - Only render after mounting to prevent hydration mismatch */}
+            {mounted ? (
+              currentUser && (
+                <div className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    {userDisplayName}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">
+                    {currentUser.role}
+                  </span>
+                </div>
+              )
+            ) : (
+              // Loading placeholder to prevent layout shift
+              <div className="w-32 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
             )}
 
             {/* Animated Dark Mode Toggle */}
