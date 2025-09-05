@@ -68,8 +68,16 @@ const CMSHeader: React.FC<CMSHeaderProps> = ({ title, showBackButton = false }) 
             )}
 
             {/* Animated Dark Mode Toggle */}
-            <div className={`h-2`}>
-              <Switch/>
+            <div className="flex items-center">
+              <button
+                onClick={toggle}
+                className="relative inline-flex items-center h-6 rounded-full w-11 bg-gray-300 dark:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                title="Toggle dark mode"
+              >
+                <span className={`inline-block w-4 h-4 transform rounded-full bg-white transition-transform ${
+                  isDark ? 'translate-x-6' : 'translate-x-1'
+                }`} />
+              </button>
             </div>
 
             <Link

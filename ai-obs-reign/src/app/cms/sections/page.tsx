@@ -291,7 +291,11 @@ export default function CMSSections() {
                   }`}
                 >
                 {/* Section Header */}
-                <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <div 
+                  className="px-6 py-4 border-b border-gray-200 dark:border-gray-700"
+                  draggable={false}
+                  onDragStart={(e) => e.preventDefault()}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <button
@@ -334,9 +338,14 @@ export default function CMSSections() {
                       
                       {/* Collapse/Expand Button */}
                       <button
-                        onClick={() => toggleSectionCollapse(section.id)}
-                        className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSectionCollapse(section.id);
+                        }}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
                         title={isCollapsed ? 'Expand section' : 'Collapse section'}
+                        style={{ cursor: 'pointer' }}
                       >
                         {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
                       </button>
@@ -351,41 +360,57 @@ export default function CMSSections() {
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2" onMouseDown={(e) => e.stopPropagation()}>
                       <button
-                        onClick={() => handleToggleVisibility(section.id)}
-                        className="p-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleVisibility(section.id);
+                        }}
+                        className="p-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                         title={section.isVisible ? 'Hide section' : 'Show section'}
+                        style={{ cursor: 'pointer' }}
                       >
                         {section.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                       </button>
 
                       <button
-                        onClick={() => handleDuplicateSection(section.id)}
-                        className="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDuplicateSection(section.id);
+                        }}
+                        className="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
                         title="Duplicate section"
+                        style={{ cursor: 'pointer' }}
                       >
                         <Copy className="w-4 h-4" />
                       </button>
                       
                       <button
-                        onClick={() => setEditingSection(
-                          editingSection === section.id ? null : section.id
-                        )}
-                        className={`p-2 rounded ${
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingSection(
+                            editingSection === section.id ? null : section.id
+                          );
+                        }}
+                        className={`p-2 rounded transition-colors ${
                           editingSection === section.id
                             ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400'
-                            : 'text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
+                            : 'text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
                         }`}
                         title="Edit section"
+                        style={{ cursor: 'pointer' }}
                       >
                         {editingSection === section.id ? <X className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
                       </button>
                       
                       <button
-                        onClick={() => handleDeleteSection(section.id)}
-                        className="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteSection(section.id);
+                        }}
+                        className="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
                         title="Delete section"
+                        style={{ cursor: 'pointer' }}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
