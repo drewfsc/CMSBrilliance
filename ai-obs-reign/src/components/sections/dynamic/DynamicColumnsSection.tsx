@@ -11,9 +11,18 @@ interface DynamicColumnsSectionProps {
 }
 
 const DynamicColumnsSection: React.FC<DynamicColumnsSectionProps> = ({ section, isEditMode = false, onUpdate }) => {
-  const { fields } = section;
+  const { fields, styling } = section;
   const features = (fields.features as string[]) || [];
   const layoutDirection = fields.layout || 'text-left';
+  
+  // Provide fallback styling if not defined
+  const fallbackStyling = {
+    backgroundColor: 'white',
+    textColor: 'auto' as const,
+    padding: 'large' as const
+  };
+  
+  const sectionStyling = styling || fallbackStyling;
 
   const handleFieldChange = (fieldName: string, value: any) => {
     if (onUpdate) {

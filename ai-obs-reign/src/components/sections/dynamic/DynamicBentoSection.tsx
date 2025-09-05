@@ -20,8 +20,18 @@ interface DynamicBentoSectionProps {
 }
 
 const DynamicBentoSection: React.FC<DynamicBentoSectionProps> = ({ section, isEditMode = false, onUpdate }) => {
-  const { fields } = section;
+  const { fields, styling } = section;
   const cards = (fields.cards as BentoCard[]) || [];
+  
+  // Provide fallback styling if not defined
+  const fallbackStyling = {
+    backgroundColor: 'gray-900',
+    imageOpacity: 20,
+    textColor: 'light' as const,
+    padding: 'large' as const
+  };
+  
+  const sectionStyling = styling || fallbackStyling;
 
   const handleFieldChange = (fieldName: string, value: any) => {
     if (onUpdate) {

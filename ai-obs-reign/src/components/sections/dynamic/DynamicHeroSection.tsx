@@ -3,6 +3,7 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { DynamicSection } from '@/lib/dynamic-sections';
+import { SectionStylingUtils, useParallaxScroll } from '@/lib/section-styling';
 
 interface DynamicHeroSectionProps {
   section: DynamicSection;
@@ -11,7 +12,21 @@ interface DynamicHeroSectionProps {
 }
 
 const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({ section, isEditMode = false, onUpdate }) => {
-  const { fields } = section;
+  const { fields, styling } = section;
+  
+  // Provide fallback styling if not defined
+  const fallbackStyling = {
+    backgroundColor: 'gradient-dark',
+    backgroundImage: '/bg.jpg',
+    imageOpacity: 40,
+    enableParallax: true,
+    textColor: 'light' as const,
+    padding: 'large' as const
+  };
+  
+  const sectionStyling = styling || fallbackStyling;
+  const scrollY = useParallaxScroll(sectionStyling.enableParallax || false);
+  const { containerStyle, containerClass, backgroundImageStyle } = SectionStylingUtils.getSectionStyles(sectionStyling);
 
   const handleFieldChange = (fieldName: string, value: any) => {
     if (onUpdate) {
@@ -20,8 +35,24 @@ const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({ section, isEdit
   };
 
   return (
-    <section className="py-20 bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section 
+      className={`relative ${containerClass}`}
+      style={containerStyle}
+    >
+      {/* Background Image with Parallax */}
+      {backgroundImageStyle && (
+        <div
+          className="absolute inset-0"
+          style={{
+            ...backgroundImageStyle,
+            transform: sectionStyling.enableParallax 
+              ? SectionStylingUtils.getParallaxTransform(scrollY, true)
+              : undefined
+          }}
+        />
+      )}
+      {/* Content Container */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto">
           {/* Badge */}
           {fields.badge && (
@@ -131,18 +162,6 @@ const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({ section, isEdit
           </div>
         </div>
       </div>
-
-      {/* Background Image */}
-      {fields.backgroundImage && (
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `url(${fields.backgroundImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        />
-      )}
     </section>
   );
 };

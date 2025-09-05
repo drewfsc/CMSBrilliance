@@ -12,6 +12,15 @@ export interface SectionField {
   defaultValue?: any;
 }
 
+export interface SectionStyling {
+  backgroundColor: string; // Color ID from site config
+  backgroundImage?: string; // URL to background image
+  imageOpacity?: number; // 0-100, opacity of background image
+  enableParallax?: boolean; // Enable parallax effect for background image
+  textColor?: 'light' | 'dark' | 'auto'; // Text color theme
+  padding?: 'none' | 'small' | 'medium' | 'large'; // Section padding
+}
+
 export interface DynamicSection {
   id: string;
   name: string;
@@ -20,6 +29,7 @@ export interface DynamicSection {
   isVisible: boolean;
   fields: Record<string, any>; // Actual content values
   schema: SectionField[]; // Field definitions
+  styling: SectionStyling; // Visual styling options
   createdAt: string;
   updatedAt: string;
 }
@@ -148,6 +158,46 @@ export function createSection(template: SectionTemplate, name: string): DynamicS
     fields[field.name] = field.defaultValue || '';
   });
   
+  // Default styling based on section type
+  const getDefaultStyling = (layout: SectionLayout): SectionStyling => {
+    switch (layout) {
+      case 'hero':
+        return {
+          backgroundColor: 'gradient-dark',
+          backgroundImage: '/bg.jpg',
+          imageOpacity: 40,
+          enableParallax: true,
+          textColor: 'light',
+          padding: 'large'
+        };
+      case 'bento':
+        return {
+          backgroundColor: 'gray-900',
+          imageOpacity: 20,
+          textColor: 'light',
+          padding: 'large'
+        };
+      case 'grid':
+        return {
+          backgroundColor: 'gray-50',
+          textColor: 'auto',
+          padding: 'large'
+        };
+      case 'columns':
+        return {
+          backgroundColor: 'white',
+          textColor: 'auto',
+          padding: 'large'
+        };
+      default:
+        return {
+          backgroundColor: 'white',
+          textColor: 'auto',
+          padding: 'medium'
+        };
+    }
+  };
+  
   return {
     id: `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     name,
@@ -156,6 +206,7 @@ export function createSection(template: SectionTemplate, name: string): DynamicS
     isVisible: true,
     fields,
     schema: template.defaultFields,
+    styling: getDefaultStyling(template.layout),
     createdAt: now,
     updatedAt: now
   };

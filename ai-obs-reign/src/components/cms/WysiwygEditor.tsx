@@ -180,5 +180,3 @@ const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
 };
 
 export default WysiwygEditor;
-```
-

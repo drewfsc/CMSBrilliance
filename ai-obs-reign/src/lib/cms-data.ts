@@ -492,7 +492,7 @@ export const defaultContactData: ContactSectionData = {
 export const CMS_STORAGE_KEY = 'reign-cms-data';
 
 // CMS Data Management
-import { DynamicSection } from './dynamic-sections';
+import { DynamicSection, SectionStyling } from './dynamic-sections';
 
 export class CMSDataManager {
   private static useSupabase = false; // Toggle this to true when Supabase is configured
@@ -673,7 +673,57 @@ export class CMSDataManager {
   static getDynamicSections(): DynamicSection[] {
     if (typeof window === 'undefined') return [];
     const data = localStorage.getItem('cms-dynamic-sections');
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    
+    const sections = JSON.parse(data);
+    
+    // Ensure all sections have styling property
+    return sections.map((section: DynamicSection) => {
+      if (!section.styling) {
+        // Add default styling based on layout
+        const getDefaultStyling = (layout: string): SectionStyling => {
+          switch (layout) {
+            case 'hero':
+              return {
+                backgroundColor: 'gradient-dark',
+                backgroundImage: '/bg.jpg',
+                imageOpacity: 40,
+                enableParallax: true,
+                textColor: 'light' as const,
+                padding: 'large' as const
+              };
+            case 'bento':
+              return {
+                backgroundColor: 'gray-900',
+                imageOpacity: 20,
+                textColor: 'light' as const,
+                padding: 'large' as const
+              };
+            case 'grid':
+              return {
+                backgroundColor: 'gray-50',
+                textColor: 'auto' as const,
+                padding: 'large' as const
+              };
+            case 'columns':
+              return {
+                backgroundColor: 'white',
+                textColor: 'auto' as const,
+                padding: 'large' as const
+              };
+            default:
+              return {
+                backgroundColor: 'white',
+                textColor: 'auto' as const,
+                padding: 'medium' as const
+              };
+          }
+        };
+        
+        section.styling = getDefaultStyling(section.layout);
+      }
+      return section;
+    });
   }
 
   static saveDynamicSections(sections: DynamicSection[]): void {

@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import CMSHeader from '@/components/cms/CMSHeader';
 import SectionTypeModal from '@/components/cms/SectionTypeModal';
+import SectionStylingPanel from '@/components/cms/SectionStylingPanel';
 import { CMSDataManager } from '@/lib/cms-data';
-import { DynamicSection, createSection, SectionTemplate } from '@/lib/dynamic-sections';
+import { DynamicSection, createSection, SectionTemplate, SectionStyling } from '@/lib/dynamic-sections';
 import { 
   Plus, 
   Trash2, 
@@ -30,6 +31,7 @@ export default function CMSSections() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+  const [stylingPanelOpen, setStylingPanelOpen] = useState<Set<string>>(new Set());
   const [hasChanges, setHasChanges] = useState(false);
   const [draggedSection, setDraggedSection] = useState<string | null>(null);
   const [dragOverSection, setDragOverSection] = useState<string | null>(null);
@@ -82,6 +84,24 @@ export default function CMSSections() {
     CMSDataManager.updateDynamicSection(sectionId, { fields });
     loadSections();
     setHasChanges(true);
+  };
+
+  const handleUpdateSectionStyling = (sectionId: string, styling: SectionStyling) => {
+    CMSDataManager.updateDynamicSection(sectionId, { styling });
+    loadSections();
+    setHasChanges(true);
+  };
+
+  const toggleStylingPanel = (sectionId: string) => {
+    setStylingPanelOpen(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sectionId)) {
+        newSet.delete(sectionId);
+      } else {
+        newSet.add(sectionId);
+      }
+      return newSet;
+    });
   };
 
   const handleDuplicateSection = (sectionId: string) => {
@@ -470,6 +490,14 @@ export default function CMSSections() {
                     </div>
                   </div>
                 )}
+
+                {/* Section Styling Panel */}
+                <SectionStylingPanel
+                  styling={section.styling}
+                  onUpdate={(styling) => handleUpdateSectionStyling(section.id, styling)}
+                  isOpen={stylingPanelOpen.has(section.id)}
+                  onToggle={() => toggleStylingPanel(section.id)}
+                />
               </div>
               </React.Fragment>
             );

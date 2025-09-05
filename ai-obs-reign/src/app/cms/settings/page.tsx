@@ -78,6 +78,42 @@ export default function CMSSettings() {
           })}
         </div>
 
+        {/* Site Colors Configuration */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Site Colors</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Configure the color palette available for section backgrounds. These colors will be available when styling individual sections.
+          </p>
+          
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Background Colors</h3>
+              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {/* This would show the current background colors */}
+                <div className="text-center">
+                  <div className="w-full h-16 bg-white border-2 border-gray-300 rounded-lg mb-2"></div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Pure White</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-full h-16 bg-gray-900 border-2 border-gray-300 rounded-lg mb-2"></div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Dark Gray</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-full h-16 bg-gradient-to-r from-blue-500 to-purple-500 border-2 border-gray-300 rounded-lg mb-2"></div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Blue Gradient</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-full h-16 bg-black border-2 border-gray-300 rounded-lg mb-2"></div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Pure Black</p>
+                </div>
+              </div>
+              <p className="text-sm text-blue-600 dark:text-blue-400 mt-3">
+                💡 These colors are used in the section styling panel when editing sections.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Quick Settings Form */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Quick Settings</h2>

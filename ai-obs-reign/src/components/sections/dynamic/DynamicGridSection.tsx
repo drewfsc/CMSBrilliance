@@ -3,6 +3,7 @@
 import React from 'react';
 import { Plus, Trash2, ExternalLink } from 'lucide-react';
 import { DynamicSection } from '@/lib/dynamic-sections';
+import { SectionStylingUtils, useParallaxScroll } from '@/lib/section-styling';
 
 interface GridItem {
   icon: string;
@@ -18,9 +19,20 @@ interface DynamicGridSectionProps {
 }
 
 const DynamicGridSection: React.FC<DynamicGridSectionProps> = ({ section, isEditMode = false, onUpdate }) => {
-  const { fields } = section;
+  const { fields, styling } = section;
   const items = (fields.items as GridItem[]) || [];
   const columns = fields.columns || '3';
+  
+  // Provide fallback styling if not defined
+  const fallbackStyling = {
+    backgroundColor: 'gray-50',
+    textColor: 'auto' as const,
+    padding: 'large' as const
+  };
+  
+  const sectionStyling = styling || fallbackStyling;
+  const scrollY = useParallaxScroll(sectionStyling.enableParallax || false);
+  const { containerStyle, containerClass, backgroundImageStyle } = SectionStylingUtils.getSectionStyles(sectionStyling);
 
   const handleFieldChange = (fieldName: string, value: any) => {
     if (onUpdate) {
@@ -60,8 +72,24 @@ const DynamicGridSection: React.FC<DynamicGridSectionProps> = ({ section, isEdit
   };
 
   return (
-    <section className="py-20 bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section 
+      className={`relative ${containerClass}`}
+      style={containerStyle}
+    >
+      {/* Background Image with Parallax */}
+      {backgroundImageStyle && (
+        <div
+          className="absolute inset-0"
+          style={{
+            ...backgroundImageStyle,
+            transform: sectionStyling.enableParallax 
+              ? SectionStylingUtils.getParallaxTransform(scrollY, true)
+              : undefined
+          }}
+        />
+      )}
+      {/* Content Container */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
