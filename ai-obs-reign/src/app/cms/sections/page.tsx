@@ -31,6 +31,8 @@ export default function CMSSections() {
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const [hasChanges, setHasChanges] = useState(false);
+  const [draggedSection, setDraggedSection] = useState<string | null>(null);
+  const [dragOverSection, setDragOverSection] = useState<string | null>(null);
 
   useEffect(() => {
     loadSections();
@@ -124,18 +126,74 @@ export default function CMSSections() {
     });
   };
 
-  const handleReorderSections = (fromIndex: number, toIndex: number) => {
-    // This is a simplified reorder - in production you'd want drag-and-drop
-    const reorderedIds = sections.map(s => s.id);
+  // Drag and Drop Handlers
+  const handleDragStart = (e: React.DragEvent, sectionId: string) => {
+    setDraggedSection(sectionId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', sectionId);
     
-    // Swap positions
-    const temp = reorderedIds[fromIndex];
-    reorderedIds[fromIndex] = reorderedIds[toIndex];
-    reorderedIds[toIndex] = temp;
+    // Add some visual feedback
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = '0.5';
+    }
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    setDraggedSection(null);
+    setDragOverSection(null);
     
-    CMSDataManager.reorderDynamicSections(reorderedIds);
+    // Reset visual feedback
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = '1';
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent, sectionId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverSection(sectionId);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Only clear if we're actually leaving the element (not entering a child)
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverSection(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetSectionId: string) => {
+    e.preventDefault();
+    
+    if (!draggedSection || draggedSection === targetSectionId) {
+      return;
+    }
+
+    // Find the indices of the dragged and target sections
+    const draggedIndex = sections.findIndex(s => s.id === draggedSection);
+    const targetIndex = sections.findIndex(s => s.id === targetSectionId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      return;
+    }
+
+    // Reorder the sections
+    const reorderedSections = [...sections];
+    const [draggedSectionData] = reorderedSections.splice(draggedIndex, 1);
+    reorderedSections.splice(targetIndex, 0, draggedSectionData);
+
+    // Update order values
+    reorderedSections.forEach((section, index) => {
+      section.order = index;
+    });
+
+    // Save the reordered sections
+    CMSDataManager.saveDynamicSections(reorderedSections);
     loadSections();
     setHasChanges(true);
+
+    // Reset drag state
+    setDraggedSection(null);
+    setDragOverSection(null);
   };
 
   const renderSectionPreview = (section: DynamicSection) => {
@@ -206,18 +264,73 @@ export default function CMSSections() {
         <div className="space-y-8">
           {sections.map((section, index) => {
             const isCollapsed = collapsedSections.has(section.id);
+            const isDragging = draggedSection === section.id;
+            const isDragOver = dragOverSection === section.id;
             
             return (
-              <div
-                key={section.id}
-                data-section-id={section.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
-              >
+              <React.Fragment key={section.id}>
+                {/* Drop indicator */}
+                {isDragOver && draggedSection && draggedSection !== section.id && (
+                  <div className="h-2 bg-blue-400 dark:bg-blue-500 rounded-full mx-4 animate-pulse" />
+                )}
+                
+                <div
+                  data-section-id={section.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, section.id)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => handleDragOver(e, section.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, section.id)}
+                  className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border transition-all duration-200 ${
+                    isDragging 
+                      ? 'opacity-50 scale-95 border-blue-400 dark:border-blue-500 cursor-grabbing' 
+                      : isDragOver 
+                      ? 'border-blue-400 dark:border-blue-500 shadow-lg transform -translate-y-1' 
+                      : 'border-gray-200 dark:border-gray-700 hover:shadow-md cursor-grab'
+                  }`}
+                >
                 {/* Section Header */}
                 <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <GripVertical className="w-5 h-5 text-gray-400 cursor-move" />
+                      <button
+                        className={`p-1 rounded transition-colors ${
+                          isDragging ? 'bg-blue-100 dark:bg-blue-800' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                        }`}
+                        title="Drag to reorder (or use keyboard: Arrow keys + Ctrl)"
+                        onKeyDown={(e) => {
+                          if (e.ctrlKey) {
+                            const currentIndex = sections.findIndex(s => s.id === section.id);
+                            if (e.key === 'ArrowUp' && currentIndex > 0) {
+                              e.preventDefault();
+                              const reorderedSections = [...sections];
+                              [reorderedSections[currentIndex], reorderedSections[currentIndex - 1]] = 
+                                [reorderedSections[currentIndex - 1], reorderedSections[currentIndex]];
+                              
+                              reorderedSections.forEach((s, i) => s.order = i);
+                              CMSDataManager.saveDynamicSections(reorderedSections);
+                              loadSections();
+                              setHasChanges(true);
+                            } else if (e.key === 'ArrowDown' && currentIndex < sections.length - 1) {
+                              e.preventDefault();
+                              const reorderedSections = [...sections];
+                              [reorderedSections[currentIndex], reorderedSections[currentIndex + 1]] = 
+                                [reorderedSections[currentIndex + 1], reorderedSections[currentIndex]];
+                              
+                              reorderedSections.forEach((s, i) => s.order = i);
+                              CMSDataManager.saveDynamicSections(reorderedSections);
+                              loadSections();
+                              setHasChanges(true);
+                            }
+                          }
+                        }}
+                        tabIndex={0}
+                      >
+                        <GripVertical className={`w-5 h-5 cursor-move ${
+                          isDragging ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'
+                        }`} />
+                      </button>
                       
                       {/* Collapse/Expand Button */}
                       <button
@@ -333,6 +446,7 @@ export default function CMSSections() {
                   </div>
                 )}
               </div>
+              </React.Fragment>
             );
           })}
         </div>
@@ -353,6 +467,15 @@ export default function CMSSections() {
               <Plus className="w-4 h-4" />
               <span>Add First Section</span>
             </button>
+          </div>
+        )}
+
+        {/* Drag Instructions */}
+        {draggedSection && (
+          <div className="fixed bottom-4 left-4 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-lg shadow-lg z-50">
+            <p className="text-sm font-medium">
+              🎯 Drop on another section to reorder
+            </p>
           </div>
         )}
 
