@@ -689,15 +689,11 @@ export class CMSDataManager {
   static addDynamicSection(section: DynamicSection): void {
     const sections = this.getDynamicSections();
     
-    // Set order to place new sections after existing dynamic sections
-    // but before the About and Contact sections (which have order 1000+)
-    const maxDynamicOrder = sections.reduce((max, s) => 
-      s.order < 1000 ? Math.max(max, s.order) : max, -1
-    );
-    
-    // If no dynamic sections exist, start at order 0
-    // Otherwise, place after the last dynamic section
-    section.order = maxDynamicOrder < 0 ? 0 : maxDynamicOrder + 1;
+    // If order is not set or is a fractional number (from duplication), normalize it
+    if (section.order === 0 || section.order % 1 !== 0) {
+      const maxOrder = sections.reduce((max, s) => Math.max(max, Math.floor(s.order)), -1);
+      section.order = maxOrder + 1;
+    }
     
     sections.push(section);
     this.saveDynamicSections(sections);
