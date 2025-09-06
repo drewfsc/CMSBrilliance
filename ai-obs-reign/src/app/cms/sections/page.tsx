@@ -211,7 +211,9 @@ export default function CMSSections() {
 
   const handleDragOver = (e: React.DragEvent, sectionId: string) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    e.stopPropagation();
+    // Set appropriate drop effect based on what's being dragged
+    e.dataTransfer.dropEffect = draggedTemplate ? 'copy' : 'move';
     setDragOverSection(sectionId);
   };
 
@@ -224,6 +226,7 @@ export default function CMSSections() {
 
   const handleDrop = (e: React.DragEvent, targetSectionId: string) => {
     e.preventDefault();
+    e.stopPropagation();
     
     // Handle template drop
     if (draggedTemplate) {
@@ -464,9 +467,63 @@ export default function CMSSections() {
             
             return (
               <React.Fragment key={section.id}>
-                {/* Drop indicator */}
+                {/* Dedicated drop zone before each section */}
+                {draggedTemplate && (
+                  <div 
+                    className="h-8 border-2 border-dashed border-transparent hover:border-blue-400 dark:hover:border-blue-500 rounded-lg bg-transparent hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center justify-center transition-all duration-200"
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.dataTransfer.dropEffect = 'copy';
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      
+                      if (draggedTemplate) {
+                        const newSection = createSection(draggedTemplate.template, draggedTemplate.name);
+                        const updatedSections = [...sections];
+                        updatedSections.splice(index, 0, newSection);
+                        
+                        // Update order values
+                        updatedSections.forEach((section, idx) => {
+                          section.order = idx;
+                        });
+                        
+                        CMSDataManager.saveDynamicSections(updatedSections);
+                        loadSections();
+                        setHasChanges(true);
+                        
+                        // Automatically enter edit mode for the new section
+                        setEditingSection(newSection.id);
+                        
+                        // Scroll to the new section
+                        setTimeout(() => {
+                          const element = document.querySelector(`[data-section-id="${newSection.id}"]`);
+                          if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          }
+                        }, 100);
+                        
+                        setDraggedTemplate(null);
+                      }
+                    }}
+                  >
+                    <div className="text-blue-600 dark:text-blue-400 font-medium text-sm opacity-0 hover:opacity-100 transition-opacity">
+                      Drop here to add section
+                    </div>
+                  </div>
+                )}
+                
+                {/* Drop indicator - shows for section reordering */}
                 {isDragOver && draggedSection && draggedSection !== section.id && (
-                  <div className="h-2 bg-blue-400 dark:bg-blue-500 rounded-full mx-4 animate-pulse" />
+                  <div className="h-3 bg-gradient-to-r from-blue-400 to-blue-500 dark:from-blue-500 dark:to-blue-600 rounded-full mx-4 animate-pulse shadow-lg">
+                    <div className="h-full bg-white/30 dark:bg-black/30 rounded-full flex items-center justify-center">
+                      <span className="text-xs font-medium text-white drop-shadow-sm">
+                        Drop to reorder
+                      </span>
+                    </div>
+                  </div>
                 )}
                 
                 <div
@@ -481,7 +538,7 @@ export default function CMSSections() {
                     isDragging 
                       ? 'opacity-50 scale-95 shadow-neumorphic-hover cursor-grabbing' 
                       : isDragOver 
-                      ? 'shadow-neumorphic-hover transform -translate-y-1' 
+                      ? 'shadow-neumorphic-hover transform -translate-y-1 border-2 border-blue-300 dark:border-blue-600' 
                       : 'shadow-neumorphic hover:shadow-neumorphic-hover cursor-grab'
                   } border-0`}
                   style={getSectionCardStyling(section)}
@@ -731,6 +788,47 @@ export default function CMSSections() {
               </React.Fragment>
             );
           })}
+          
+          {/* Bottom Drop Zone */}
+          {draggedTemplate && (
+            <div 
+              className="h-16 border-2 border-dashed border-blue-400 dark:border-blue-500 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (draggedTemplate) {
+                  const newSection = createSection(draggedTemplate.template, draggedTemplate.name);
+                  const updatedSections = [...sections, newSection];
+                  
+                  // Update order values
+                  updatedSections.forEach((section, index) => {
+                    section.order = index;
+                  });
+                  
+                  CMSDataManager.saveDynamicSections(updatedSections);
+                  loadSections();
+                  setHasChanges(true);
+                  
+                  // Automatically enter edit mode for the new section
+                  setEditingSection(newSection.id);
+                  
+                  // Scroll to the new section
+                  setTimeout(() => {
+                    const element = document.querySelector(`[data-section-id="${newSection.id}"]`);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }, 100);
+                  
+                  setDraggedTemplate(null);
+                }
+              }}
+            >
+              <div className="text-blue-600 dark:text-blue-400 font-medium">
+                Drop here to add at the bottom
+              </div>
+            </div>
+          )}
         </div>
 
             {/* Empty State */}
@@ -764,7 +862,9 @@ export default function CMSSections() {
         {(draggedSection || draggedTemplate) && (
           <div className="fixed bottom-4 left-4 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-lg shadow-lg z-50">
             <p className="text-sm font-medium">
-              {draggedTemplate ? '🎯 Drop template to create new section' : '🎯 Drop on another section to reorder'}
+              {draggedTemplate 
+                ? '🎯 Drop template between sections, at the top, or at the bottom to add new section' 
+                : '🎯 Drop on another section to reorder'}
             </p>
           </div>
         )}

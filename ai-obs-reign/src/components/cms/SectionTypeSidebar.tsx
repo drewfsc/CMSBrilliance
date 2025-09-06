@@ -170,7 +170,7 @@ const SectionTypeSidebar: React.FC<SectionTypeSidebarProps> = ({ onDragStart, on
           <div className="text-xs text-blue-700 dark:text-blue-300">
             <p className="font-medium mb-1">How to use:</p>
             <p>1. Drag any section type from this sidebar</p>
-            <p>2. Drop it onto the main list to add it</p>
+            <p>2. Drop it between sections, at the top, or at the bottom</p>
             <p>3. The section will open in edit mode automatically</p>
           </div>
         </div>
