@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Home, LogOut, User } from 'lucide-react';
+import { ArrowLeft, Home, LogOut, User, ChevronDown, Settings } from 'lucide-react';
 import { useDarkMode } from '@/lib/dark-mode-context';
 import { CMSAuthManager, CMSUser } from '@/lib/cms-auth';
 import { SiteConfigManager } from '@/lib/site-config';
@@ -20,6 +20,8 @@ const CMSHeader: React.FC<CMSHeaderProps> = ({ title, showBackButton = false }) 
   const [userDisplayName, setUserDisplayName] = useState('');
   const [mounted, setMounted] = useState(false);
   const [siteIcon, setSiteIcon] = useState<string | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -30,6 +32,23 @@ const CMSHeader: React.FC<CMSHeaderProps> = ({ title, showBackButton = false }) 
     setUserDisplayName(displayName);
     setSiteIcon(icon);
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   const handleLogout = () => {
     // Use the auth manager to handle logout
@@ -74,17 +93,55 @@ const CMSHeader: React.FC<CMSHeaderProps> = ({ title, showBackButton = false }) 
           </div>
           
           <div className="flex items-center space-x-4">
-            {/* User Info - Only render after mounting to prevent hydration mismatch */}
+            {/* User Dropdown - Only render after mounting to prevent hydration mismatch */}
             {mounted ? (
               currentUser && (
-                <div className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {userDisplayName}
-                  </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">
-                    {currentUser.role}
-                  </span>
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    <User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      {userDisplayName}
+                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">
+                      {currentUser.role}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                      <div className="py-1">
+                        <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{userDisplayName}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{currentUser.email}</p>
+                        </div>
+                        
+                        <Link
+                          href="/cms/settings"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          onClick={() => setIsDropdownOpen(false)}
+                        >
+                          <Settings className="w-4 h-4 mr-3" />
+                          Settings
+                        </Link>
+                        
+                        <button
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                            handleLogout();
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        >
+                          <LogOut className="w-4 h-4 mr-3" />
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )
             ) : (
@@ -112,15 +169,6 @@ const CMSHeader: React.FC<CMSHeaderProps> = ({ title, showBackButton = false }) 
               <Home className="w-4 h-4 mr-2" />
               View Site
             </Link>
-            
-            <button 
-              onClick={handleLogout}
-              className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors"
-              title="Logout of CMS"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </button>
           </div>
         </div>
       </div>

@@ -8,6 +8,7 @@ interface SectionTypeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (template: SectionTemplate, name: string) => void;
+  onDragStart?: (template: SectionTemplate, name: string) => void;
 }
 
 const iconMap = {
@@ -22,7 +23,7 @@ const iconMap = {
   FileText
 };
 
-const SectionTypeModal: React.FC<SectionTypeModalProps> = ({ isOpen, onClose, onSelect }) => {
+const SectionTypeModal: React.FC<SectionTypeModalProps> = ({ isOpen, onClose, onSelect, onDragStart }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<SectionTemplate | null>(null);
   const [sectionName, setSectionName] = useState('');
   const [error, setError] = useState('');
@@ -127,7 +128,20 @@ const SectionTypeModal: React.FC<SectionTypeModalProps> = ({ isOpen, onClose, on
                       key={template.layout}
                       type="button"
                       onClick={() => setSelectedTemplate(template)}
-                      className={`p-6 border-2 rounded-xl text-left transition-all ${
+                      draggable={true}
+                      onDragStart={(e) => {
+                        if (onDragStart && sectionName.trim()) {
+                          e.dataTransfer.setData('application/json', JSON.stringify({
+                            template,
+                            name: sectionName.trim()
+                          }));
+                          onDragStart(template, sectionName.trim());
+                        }
+                      }}
+                      onDragEnd={() => {
+                        // Reset any visual feedback
+                      }}
+                      className={`p-6 border-2 rounded-xl text-left transition-all cursor-grab active:cursor-grabbing ${
                         selectedTemplate?.layout === template.layout
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                           : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'

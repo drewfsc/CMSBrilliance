@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import CMSHeader from '@/components/cms/CMSHeader';
 import SectionTypeModal from '@/components/cms/SectionTypeModal';
+import SectionTypeSidebar from '@/components/cms/SectionTypeSidebar';
 import SectionStylingPanel from '@/components/cms/SectionStylingPanel';
 import { CMSDataManager } from '@/lib/cms-data';
 import { DynamicSection, createSection, SectionTemplate, SectionStyling } from '@/lib/dynamic-sections';
@@ -42,6 +43,7 @@ export default function CMSSections() {
   const [hasChanges, setHasChanges] = useState(false);
   const [draggedSection, setDraggedSection] = useState<string | null>(null);
   const [dragOverSection, setDragOverSection] = useState<string | null>(null);
+  const [draggedTemplate, setDraggedTemplate] = useState<{template: SectionTemplate, name: string} | null>(null);
 
   useEffect(() => {
     loadSections();
@@ -71,6 +73,14 @@ export default function CMSSections() {
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }, 100);
+  };
+
+  const handleTemplateDragStart = (template: SectionTemplate, name: string) => {
+    setDraggedTemplate({ template, name });
+  };
+
+  const handleTemplateDragEnd = () => {
+    setDraggedTemplate(null);
   };
 
   const handleDeleteSection = (sectionId: string) => {
@@ -215,6 +225,45 @@ export default function CMSSections() {
   const handleDrop = (e: React.DragEvent, targetSectionId: string) => {
     e.preventDefault();
     
+    // Handle template drop
+    if (draggedTemplate) {
+      const newSection = createSection(draggedTemplate.template, draggedTemplate.name);
+      
+      // Find the target section index
+      const targetIndex = sections.findIndex(s => s.id === targetSectionId);
+      
+      if (targetIndex !== -1) {
+        // Insert at the target position
+        const updatedSections = [...sections];
+        updatedSections.splice(targetIndex, 0, newSection);
+        
+        // Update order values
+        updatedSections.forEach((section, index) => {
+          section.order = index;
+        });
+        
+        CMSDataManager.saveDynamicSections(updatedSections);
+        loadSections();
+        setHasChanges(true);
+        
+        // Automatically enter edit mode for the new section
+        setEditingSection(newSection.id);
+        
+        // Scroll to the new section
+        setTimeout(() => {
+          const element = document.querySelector(`[data-section-id="${newSection.id}"]`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 100);
+      }
+      
+      setDraggedTemplate(null);
+      setDragOverSection(null);
+      return;
+    }
+    
+    // Handle section reordering
     if (!draggedSection || draggedSection === targetSectionId) {
       return;
     }
@@ -328,7 +377,7 @@ export default function CMSSections() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Manage Sections</h1>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
-              Add, edit, and organize page sections
+              Drag section types from the sidebar or use the add button
             </p>
           </div>
           
@@ -360,8 +409,54 @@ export default function CMSSections() {
           </div>
         </div>
 
+        {/* Main Content Layout */}
+        <div className="flex gap-8">
+          {/* Main Sections List */}
+          <div className="flex-1">
+
         {/* Section List */}
         <div className="space-y-8">
+          {/* Top Drop Zone */}
+          {draggedTemplate && (
+            <div 
+              className="h-16 border-2 border-dashed border-blue-400 dark:border-blue-500 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (draggedTemplate) {
+                  const newSection = createSection(draggedTemplate.template, draggedTemplate.name);
+                  const updatedSections = [newSection, ...sections];
+                  
+                  // Update order values
+                  updatedSections.forEach((section, index) => {
+                    section.order = index;
+                  });
+                  
+                  CMSDataManager.saveDynamicSections(updatedSections);
+                  loadSections();
+                  setHasChanges(true);
+                  
+                  // Automatically enter edit mode for the new section
+                  setEditingSection(newSection.id);
+                  
+                  // Scroll to the new section
+                  setTimeout(() => {
+                    const element = document.querySelector(`[data-section-id="${newSection.id}"]`);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }, 100);
+                  
+                  setDraggedTemplate(null);
+                }
+              }}
+            >
+              <div className="text-blue-600 dark:text-blue-400 font-medium">
+                Drop here to add at the top
+              </div>
+            </div>
+          )}
+          
           {sections.map((section, index) => {
             const isCollapsed = collapsedSections.has(section.id);
             const isDragging = draggedSection === section.id;
@@ -638,30 +733,38 @@ export default function CMSSections() {
           })}
         </div>
 
-        {/* Empty State */}
-        {sections.length === 0 && (
-          <div className="text-center py-12 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic border-0">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              No dynamic sections yet
-            </h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">
-              Create your first dynamic section to extend your page
-            </p>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg btn-neumorphic hover:from-blue-600 hover:to-blue-700 inline-flex items-center space-x-2 border-0"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add First Section</span>
-            </button>
+            {/* Empty State */}
+            {sections.length === 0 && (
+              <div className="text-center py-12 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic border-0">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  No dynamic sections yet
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">
+                  Drag a section type from the sidebar or click the add button
+                </p>
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg btn-neumorphic hover:from-blue-600 hover:to-blue-700 inline-flex items-center space-x-2 border-0"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add First Section</span>
+                </button>
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Section Types Sidebar */}
+          <SectionTypeSidebar
+            onDragStart={handleTemplateDragStart}
+            onDragEnd={handleTemplateDragEnd}
+          />
+        </div>
 
         {/* Drag Instructions */}
-        {draggedSection && (
+        {(draggedSection || draggedTemplate) && (
           <div className="fixed bottom-4 left-4 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-lg shadow-lg z-50">
             <p className="text-sm font-medium">
-              🎯 Drop on another section to reorder
+              {draggedTemplate ? '🎯 Drop template to create new section' : '🎯 Drop on another section to reorder'}
             </p>
           </div>
         )}
@@ -681,6 +784,7 @@ export default function CMSSections() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSelect={handleAddSection}
+        onDragStart={handleTemplateDragStart}
       />
     </div>
   );

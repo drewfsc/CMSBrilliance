@@ -12,7 +12,8 @@ import {
   Edit,
   TrendingUp,
   Calendar,
-  Layout
+  Layout,
+  Plus
 } from 'lucide-react';
 
 export default function CMSDashboard() {
@@ -22,7 +23,7 @@ export default function CMSDashboard() {
       href: '/cms/sections', 
       icon: Layout, 
       description: 'Add, edit, and manage all page sections',
-      color: 'bg-blue-100 text-blue-600',
+      color: 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300',
       stats: 'Dynamic content'
     },
     { 
@@ -30,7 +31,7 @@ export default function CMSDashboard() {
       href: '/cms/media', 
       icon: Image, 
       description: 'Upload and manage images and documents',
-      color: 'bg-orange-100 text-orange-600',
+      color: 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300',
       stats: '24 files'
     },
     { 
@@ -38,7 +39,7 @@ export default function CMSDashboard() {
       href: '/cms/settings', 
       icon: Globe, 
       description: 'Global site configuration and SEO',
-      color: 'bg-indigo-100 text-indigo-600',
+      color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300',
       stats: 'Last updated today'
     },
   ];
@@ -83,13 +84,6 @@ export default function CMSDashboard() {
       color: 'text-blue-600'
     },
     {
-      label: 'Visible Sections',
-      value: '5',
-      change: '+0',
-      icon: Eye,
-      color: 'text-green-600'
-    },
-    {
       label: 'Media Files',
       value: '24',
       change: '+5',
@@ -118,7 +112,7 @@ export default function CMSDashboard() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {quickStats.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -142,11 +136,11 @@ export default function CMSDashboard() {
           })}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Management Grid */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Content Management</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -178,7 +172,7 @@ export default function CMSDashboard() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="lg:col-span-1 space-y-6">
             {/* Quick Actions */}
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic p-6 border-0">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
@@ -188,6 +182,16 @@ export default function CMSDashboard() {
               
               <div className="space-y-3">
                 <Link
+                  href="/cms/sections"
+                  className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-700 dark:to-blue-600 rounded-lg shadow-neumorphic hover:shadow-neumorphic-hover transition-all duration-300 border-0"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Plus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm font-medium text-blue-900 dark:text-blue-100">Add Section</span>
+                  </div>
+                </Link>
+                
+                <Link
                   href="/"
                   target="_blank"
                   className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-lg shadow-neumorphic hover:shadow-neumorphic-hover transition-all duration-300 border-0"
@@ -195,16 +199,6 @@ export default function CMSDashboard() {
                   <div className="flex items-center space-x-3">
                     <Eye className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                     <span className="text-sm font-medium text-gray-900 dark:text-white">Preview Site</span>
-                  </div>
-                </Link>
-                
-                <Link
-                  href="/cms/content"
-                  className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-lg shadow-neumorphic hover:shadow-neumorphic-hover transition-all duration-300 border-0"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Edit className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">Quick Edit</span>
                   </div>
                 </Link>
               </div>
