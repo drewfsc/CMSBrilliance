@@ -3,6 +3,7 @@
 import React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { DynamicSection } from '@/lib/dynamic-sections';
+import EmojiPicker from '@/components/ui/EmojiPicker';
 
 interface BentoCard {
   size: 'large' | 'medium' | 'small';
@@ -137,6 +138,34 @@ const DynamicBentoSection: React.FC<DynamicBentoSectionProps> = ({ section, isEd
 
               {/* Card Content */}
               <div className="h-full flex flex-col">
+                {/* Icon */}
+                {card.icon && (
+                  <div className="text-2xl mb-2">
+                    {isEditMode ? (
+                      <EmojiPicker
+                        value={card.icon}
+                        onChange={(emoji) => handleCardChange(index, 'icon', emoji)}
+                        placeholder="Select icon"
+                        className="w-12"
+                      />
+                    ) : (
+                      <span>{card.icon}</span>
+                    )}
+                  </div>
+                )}
+                
+                {/* Icon picker when no icon is set */}
+                {isEditMode && !card.icon && (
+                  <div className="mb-2">
+                    <EmojiPicker
+                      value=""
+                      onChange={(emoji) => handleCardChange(index, 'icon', emoji)}
+                      placeholder="Add icon"
+                      className="w-12"
+                    />
+                  </div>
+                )}
+
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                   {isEditMode ? (
                     <input

@@ -24,6 +24,12 @@ const DynamicColumnsSection: React.FC<DynamicColumnsSectionProps> = ({ section, 
   };
   
   const sectionStyling = styling || fallbackStyling;
+  
+  // Get section styles from SectionStylingUtils
+  const { containerStyle, containerClass, backgroundImageStyle } = SectionStylingUtils.getSectionStyles(sectionStyling);
+  
+  // Handle parallax scrolling if enabled
+  const parallaxTransform = useParallaxScroll(sectionStyling.enableParallax || false);
 
   const handleFieldChange = (fieldName: string, value: unknown) => {
     if (onUpdate) {
@@ -196,8 +202,23 @@ const DynamicColumnsSection: React.FC<DynamicColumnsSectionProps> = ({ section, 
   );
 
   return (
-    <section id={section.id} className="py-20 bg-white dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section 
+      id={section.id} 
+      className={containerClass}
+      style={containerStyle}
+    >
+      {/* Background Image with Parallax */}
+      {sectionStyling.backgroundImage && (
+        <div 
+          className="absolute inset-0 w-full h-full"
+          style={{
+            ...backgroundImageStyle,
+            transform: parallaxTransform
+          }}
+        />
+      )}
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {isEditMode && (
           <div className="mb-6 flex items-center justify-center">
             <label className="text-sm text-gray-600 dark:text-gray-400 mr-2">Layout:</label>

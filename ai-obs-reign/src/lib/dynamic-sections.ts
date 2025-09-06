@@ -81,7 +81,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
             size: 'large', // large, medium, small
             title: '',
             description: '',
-            icon: '',
+            icon: '🎯',
             color: 'blue',
             image: ''
           }
@@ -111,7 +111,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
         type: 'list',
         defaultValue: [
           {
-            icon: '',
+            icon: '🎯',
             title: '',
             description: '',
             link: ''
@@ -395,7 +395,7 @@ export function validateSectionFields(section: DynamicSection): { isValid: boole
     }
     
     // Add more validation as needed
-    if (field.type === 'link' && value && !isValidUrl(value)) {
+    if (field.type === 'link' && value && typeof value === 'string' && !isValidUrl(value)) {
       errors.push(`${field.label} must be a valid URL`);
     }
   });

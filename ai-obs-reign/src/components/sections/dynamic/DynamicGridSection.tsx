@@ -4,6 +4,7 @@ import React from 'react';
 import { Plus, Trash2, ExternalLink } from 'lucide-react';
 import { DynamicSection } from '@/lib/dynamic-sections';
 import { SectionStylingUtils, useParallaxScroll } from '@/lib/section-styling';
+import EmojiPicker from '@/components/ui/EmojiPicker';
 
 interface GridItem {
   icon: string;
@@ -173,12 +174,11 @@ const DynamicGridSection: React.FC<DynamicGridSectionProps> = ({ section, isEdit
               {/* Icon */}
               <div className="text-4xl mb-4">
                 {isEditMode ? (
-                  <input
-                    type="text"
+                  <EmojiPicker
                     value={item.icon}
-                    onChange={(e) => handleItemChange(index, 'icon', e.target.value)}
-                    className="w-20 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-center"
-                    placeholder="Icon"
+                    onChange={(emoji) => handleItemChange(index, 'icon', emoji)}
+                    placeholder="Select icon"
+                    className="w-20"
                   />
                 ) : (
                   item.icon
