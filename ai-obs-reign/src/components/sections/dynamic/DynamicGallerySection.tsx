@@ -14,7 +14,7 @@ interface GalleryImage {
 interface DynamicGallerySectionProps {
   section: DynamicSection;
   isEditMode?: boolean;
-  onUpdate?: (fields: Record<string, any>) => void;
+  onUpdate?: (fields: Record<string, unknown>) => void;
 }
 
 const DynamicGallerySection: React.FC<DynamicGallerySectionProps> = ({ section, isEditMode = false, onUpdate }) => {
@@ -41,7 +41,7 @@ const DynamicGallerySection: React.FC<DynamicGallerySectionProps> = ({ section, 
   const scrollY = useParallaxScroll(sectionStyling.enableParallax || false);
   const { containerStyle, containerClass, backgroundImageStyle } = SectionStylingUtils.getSectionStyles(sectionStyling);
 
-  const handleFieldChange = (fieldName: string, value: any) => {
+  const handleFieldChange = (fieldName: string, value: unknown) => {
     if (onUpdate) {
       onUpdate({ ...fields, [fieldName]: value });
     }

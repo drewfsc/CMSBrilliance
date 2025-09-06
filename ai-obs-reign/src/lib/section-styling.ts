@@ -13,7 +13,7 @@ export class SectionStylingUtils {
     const backgroundColors = SiteConfigManager.getBackgroundColors();
     const selectedColor = backgroundColors.find(c => c.id === styling.backgroundColor);
     
-    let containerStyle: React.CSSProperties = {};
+    const containerStyle: React.CSSProperties = {};
     let containerClass = '';
     let backgroundImageStyle: React.CSSProperties | undefined;
 

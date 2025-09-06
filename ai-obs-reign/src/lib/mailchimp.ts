@@ -27,7 +27,7 @@ export interface MailChimpContact {
 export interface MailChimpResponse {
   success: boolean;
   message: string;
-  data?: any;
+  data?: unknown;
   error?: string;
 }
 

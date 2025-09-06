@@ -16,7 +16,7 @@ interface FormField {
 interface DynamicFormSectionProps {
   section: DynamicSection;
   isEditMode?: boolean;
-  onUpdate?: (fields: Record<string, any>) => void;
+  onUpdate?: (fields: Record<string, unknown>) => void;
 }
 
 const DynamicFormSection: React.FC<DynamicFormSectionProps> = ({ section, isEditMode = false, onUpdate }) => {
@@ -37,13 +37,13 @@ const DynamicFormSection: React.FC<DynamicFormSectionProps> = ({ section, isEdit
   const scrollY = useParallaxScroll(sectionStyling.enableParallax || false);
   const { containerStyle, containerClass, backgroundImageStyle } = SectionStylingUtils.getSectionStyles(sectionStyling);
 
-  const handleFieldChange = (fieldName: string, value: any) => {
+  const handleFieldChange = (fieldName: string, value: unknown) => {
     if (onUpdate) {
       onUpdate({ ...fields, [fieldName]: value });
     }
   };
 
-  const handleFormFieldChange = (index: number, field: string, value: any) => {
+  const handleFormFieldChange = (index: number, field: string, value: unknown) => {
     const newFields = [...formFields];
     newFields[index] = { ...newFields[index], [field]: value };
     handleFieldChange('fields', newFields);

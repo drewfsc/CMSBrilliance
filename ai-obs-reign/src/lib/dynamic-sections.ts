@@ -9,7 +9,7 @@ export interface SectionField {
   placeholder?: string;
   required?: boolean;
   options?: string[]; // For select type
-  defaultValue?: any;
+  defaultValue?: unknown;
 }
 
 export interface SectionStyling {
@@ -29,7 +29,7 @@ export interface DynamicSection {
   isVisible: boolean;
   includeInNavigation: boolean; // Whether to show in header navigation
   navigationLabel?: string; // Custom label for navigation (defaults to name)
-  fields: Record<string, any>; // Actual content values
+  fields: Record<string, unknown>; // Actual content values
   schema: SectionField[]; // Field definitions
   styling: SectionStyling; // Visual styling options
   createdAt: string;
@@ -292,7 +292,7 @@ export const SECTION_TEMPLATES: SectionTemplate[] = [
 // Helper functions
 export function createSection(template: SectionTemplate, name: string): DynamicSection {
   const now = new Date().toISOString();
-  const fields: Record<string, any> = {};
+  const fields: Record<string, unknown> = {};
   
   // Initialize fields with default values
   template.defaultFields.forEach(field => {

@@ -8,7 +8,7 @@ import { SectionStylingUtils, useParallaxScroll } from '@/lib/section-styling';
 interface DynamicImageSectionProps {
   section: DynamicSection;
   isEditMode?: boolean;
-  onUpdate?: (fields: Record<string, any>) => void;
+  onUpdate?: (fields: Record<string, unknown>) => void;
 }
 
 const DynamicImageSection: React.FC<DynamicImageSectionProps> = ({ section, isEditMode = false, onUpdate }) => {
@@ -25,7 +25,7 @@ const DynamicImageSection: React.FC<DynamicImageSectionProps> = ({ section, isEd
   const scrollY = useParallaxScroll(sectionStyling.enableParallax || false);
   const { containerStyle, containerClass, backgroundImageStyle } = SectionStylingUtils.getSectionStyles(sectionStyling);
 
-  const handleFieldChange = (fieldName: string, value: any) => {
+  const handleFieldChange = (fieldName: string, value: unknown) => {
     if (onUpdate) {
       onUpdate({ ...fields, [fieldName]: value });
     }

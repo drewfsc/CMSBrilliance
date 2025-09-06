@@ -7,7 +7,7 @@ import { SectionStylingUtils, useParallaxScroll } from '@/lib/section-styling';
 interface DynamicDividerSectionProps {
   section: DynamicSection;
   isEditMode?: boolean;
-  onUpdate?: (fields: Record<string, any>) => void;
+  onUpdate?: (fields: Record<string, unknown>) => void;
 }
 
 const DynamicDividerSection: React.FC<DynamicDividerSectionProps> = ({ section, isEditMode = false, onUpdate }) => {
@@ -24,7 +24,7 @@ const DynamicDividerSection: React.FC<DynamicDividerSectionProps> = ({ section, 
   const scrollY = useParallaxScroll(sectionStyling.enableParallax || false);
   const { containerStyle, containerClass, backgroundImageStyle } = SectionStylingUtils.getSectionStyles(sectionStyling);
 
-  const handleFieldChange = (fieldName: string, value: any) => {
+  const handleFieldChange = (fieldName: string, value: unknown) => {
     if (onUpdate) {
       onUpdate({ ...fields, [fieldName]: value });
     }

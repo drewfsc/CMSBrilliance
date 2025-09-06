@@ -8,7 +8,7 @@ import { SectionStylingUtils, useParallaxScroll } from '@/lib/section-styling';
 interface DynamicColumnsSectionProps {
   section: DynamicSection;
   isEditMode?: boolean;
-  onUpdate?: (fields: Record<string, any>) => void;
+  onUpdate?: (fields: Record<string, unknown>) => void;
 }
 
 const DynamicColumnsSection: React.FC<DynamicColumnsSectionProps> = ({ section, isEditMode = false, onUpdate }) => {
@@ -25,7 +25,7 @@ const DynamicColumnsSection: React.FC<DynamicColumnsSectionProps> = ({ section, 
   
   const sectionStyling = styling || fallbackStyling;
 
-  const handleFieldChange = (fieldName: string, value: any) => {
+  const handleFieldChange = (fieldName: string, value: unknown) => {
     if (onUpdate) {
       onUpdate({ ...fields, [fieldName]: value });
     }

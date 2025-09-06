@@ -8,7 +8,7 @@ import { SectionStylingUtils, useParallaxScroll } from '@/lib/section-styling';
 interface DynamicHeroSectionProps {
   section: DynamicSection;
   isEditMode?: boolean;
-  onUpdate?: (fields: Record<string, any>) => void;
+  onUpdate?: (fields: Record<string, unknown>) => void;
 }
 
 const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({ section, isEditMode = false, onUpdate }) => {
@@ -28,7 +28,7 @@ const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({ section, isEdit
   const scrollY = useParallaxScroll(sectionStyling.enableParallax || false);
   const { containerStyle, containerClass, backgroundImageStyle } = SectionStylingUtils.getSectionStyles(sectionStyling);
 
-  const handleFieldChange = (fieldName: string, value: any) => {
+  const handleFieldChange = (fieldName: string, value: unknown) => {
     if (onUpdate) {
       onUpdate({ ...fields, [fieldName]: value });
     }

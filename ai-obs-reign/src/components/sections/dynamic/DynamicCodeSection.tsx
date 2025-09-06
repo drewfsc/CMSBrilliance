@@ -8,7 +8,7 @@ import { SectionStylingUtils, useParallaxScroll } from '@/lib/section-styling';
 interface DynamicCodeSectionProps {
   section: DynamicSection;
   isEditMode?: boolean;
-  onUpdate?: (fields: Record<string, any>) => void;
+  onUpdate?: (fields: Record<string, unknown>) => void;
 }
 
 const DynamicCodeSection: React.FC<DynamicCodeSectionProps> = ({ section, isEditMode = false, onUpdate }) => {
@@ -26,7 +26,7 @@ const DynamicCodeSection: React.FC<DynamicCodeSectionProps> = ({ section, isEdit
   const scrollY = useParallaxScroll(sectionStyling.enableParallax || false);
   const { containerStyle, containerClass, backgroundImageStyle } = SectionStylingUtils.getSectionStyles(sectionStyling);
 
-  const handleFieldChange = (fieldName: string, value: any) => {
+  const handleFieldChange = (fieldName: string, value: unknown) => {
     if (onUpdate) {
       onUpdate({ ...fields, [fieldName]: value });
     }
@@ -35,7 +35,7 @@ const DynamicCodeSection: React.FC<DynamicCodeSectionProps> = ({ section, isEdit
   const handleCopyCode = async () => {
     if (fields.code) {
       try {
-        await navigator.clipboard.writeText(fields.code);
+        await navigator.clipboard.writeText(String(fields.code));
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (err) {
@@ -45,9 +45,9 @@ const DynamicCodeSection: React.FC<DynamicCodeSectionProps> = ({ section, isEdit
   };
 
   const formatCodeWithLineNumbers = (code: string) => {
-    if (!fields.showLineNumbers) return code;
+    if (!Boolean(fields.showLineNumbers)) return code;
     
-    return code.split('\n').map((line, index) => (
+    return String(code).split('\n').map((line, index) => (
       <div key={index} className="flex">
         <span className="text-gray-500 text-sm mr-4 select-none w-8 text-right">
           {index + 1}
@@ -87,23 +87,23 @@ const DynamicCodeSection: React.FC<DynamicCodeSectionProps> = ({ section, isEdit
                   {isEditMode ? (
                     <input
                       type="text"
-                      value={fields.title || ''}
+                      value={String(fields.title || '')}
                       onChange={(e) => handleFieldChange('title', e.target.value)}
                       className="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-white outline-none focus:border-blue-400"
                       placeholder="Code block title"
                     />
                   ) : (
-                    fields.title
+                    String(fields.title || '')
                   )}
                 </h3>
               )}
               
               <span className="text-sm text-gray-400 bg-gray-700 px-2 py-1 rounded">
-                {fields.language || 'javascript'}
+                {String(fields.language || 'javascript')}
               </span>
             </div>
 
-            {fields.allowCopy && !isEditMode && fields.code && (
+            {Boolean(fields.allowCopy) && !isEditMode && Boolean(fields.code) && (
               <button
                 onClick={handleCopyCode}
                 className="flex items-center space-x-2 px-3 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded text-sm transition-colors"
@@ -127,7 +127,7 @@ const DynamicCodeSection: React.FC<DynamicCodeSectionProps> = ({ section, isEdit
           <div className="p-6">
             {isEditMode ? (
               <textarea
-                value={fields.code || ''}
+                value={String(fields.code || '')}
                 onChange={(e) => handleFieldChange('code', e.target.value)}
                 className="w-full h-64 bg-gray-800 border border-gray-700 rounded px-4 py-3 text-green-400 font-mono text-sm outline-none focus:border-blue-400 resize-vertical"
                 placeholder="Enter your code here..."
@@ -137,8 +137,8 @@ const DynamicCodeSection: React.FC<DynamicCodeSectionProps> = ({ section, isEdit
               <pre className="text-green-400 font-mono text-sm overflow-x-auto">
                 <code>
                   {fields.showLineNumbers ? 
-                    formatCodeWithLineNumbers(fields.code || '') : 
-                    fields.code || 'No code provided'
+                    formatCodeWithLineNumbers(String(fields.code || '')) : 
+                    String(fields.code || 'No code provided')
                   }
                 </code>
               </pre>

@@ -20,7 +20,7 @@ const SectionStylingPanel: React.FC<SectionStylingPanelProps> = ({
 }) => {
   const backgroundColors = SiteConfigManager.getBackgroundColors();
 
-  const handleStylingChange = (field: keyof SectionStyling, value: any) => {
+  const handleStylingChange = (field: keyof SectionStyling, value: unknown) => {
     onUpdate({
       ...styling,
       [field]: value

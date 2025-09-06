@@ -116,7 +116,7 @@ export default function CMSSections() {
     setHasChanges(true);
   };
 
-  const handleUpdateSection = (sectionId: string, fields: Record<string, any>) => {
+  const handleUpdateSection = (sectionId: string, fields: Record<string, unknown>) => {
     CMSDataManager.updateDynamicSection(sectionId, { fields });
     loadSections();
     setHasChanges(true);
@@ -279,7 +279,7 @@ export default function CMSSections() {
     const sectionProps = {
       section,
       isEditMode: isEditing,
-      onUpdate: (fields: Record<string, any>) => handleUpdateSection(section.id, fields)
+      onUpdate: (fields: Record<string, unknown>) => handleUpdateSection(section.id, fields)
     };
 
     switch (section.layout) {
@@ -405,7 +405,7 @@ export default function CMSSections() {
                     <div
                       key={template.layout}
                       draggable
-                      onDragStart={(e) => handleTemplateDragStart(template, template.name)}
+                      onDragStart={() => handleTemplateDragStart(template, template.name)}
                       onDragEnd={handleTemplateDragEnd}
                       className="w-[110px] h-[110px] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic hover:shadow-neumorphic-hover transition-all duration-300 cursor-grab active:cursor-grabbing border-0 group relative"
                       title={template.description}
@@ -737,7 +737,7 @@ export default function CMSSections() {
                             <div className="bg-green-100 dark:bg-green-900/40 px-3 py-2 rounded-lg">
                               <div className="font-medium">Preview:</div>
                               <div className="text-xs mt-1">
-                                "{section.navigationLabel || section.name}"
+                                &quot;{section.navigationLabel || section.name}&quot;
                               </div>
                             </div>
                           </div>

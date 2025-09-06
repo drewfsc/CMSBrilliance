@@ -15,7 +15,7 @@ interface GridItem {
 interface DynamicGridSectionProps {
   section: DynamicSection;
   isEditMode?: boolean;
-  onUpdate?: (fields: Record<string, any>) => void;
+  onUpdate?: (fields: Record<string, unknown>) => void;
 }
 
 const DynamicGridSection: React.FC<DynamicGridSectionProps> = ({ section, isEditMode = false, onUpdate }) => {
@@ -34,13 +34,13 @@ const DynamicGridSection: React.FC<DynamicGridSectionProps> = ({ section, isEdit
   const scrollY = useParallaxScroll(sectionStyling.enableParallax || false);
   const { containerStyle, containerClass, backgroundImageStyle } = SectionStylingUtils.getSectionStyles(sectionStyling);
 
-  const handleFieldChange = (fieldName: string, value: any) => {
+  const handleFieldChange = (fieldName: string, value: unknown) => {
     if (onUpdate) {
       onUpdate({ ...fields, [fieldName]: value });
     }
   };
 
-  const handleItemChange = (index: number, itemField: string, value: any) => {
+  const handleItemChange = (index: number, itemField: string, value: unknown) => {
     const newItems = [...items];
     newItems[index] = { ...newItems[index], [itemField]: value };
     handleFieldChange('items', newItems);

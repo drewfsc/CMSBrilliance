@@ -16,7 +16,7 @@ interface BentoCard {
 interface DynamicBentoSectionProps {
   section: DynamicSection;
   isEditMode?: boolean;
-  onUpdate?: (fields: Record<string, any>) => void;
+  onUpdate?: (fields: Record<string, unknown>) => void;
 }
 
 const DynamicBentoSection: React.FC<DynamicBentoSectionProps> = ({ section, isEditMode = false, onUpdate }) => {
@@ -33,13 +33,13 @@ const DynamicBentoSection: React.FC<DynamicBentoSectionProps> = ({ section, isEd
   
   const sectionStyling = styling || fallbackStyling;
 
-  const handleFieldChange = (fieldName: string, value: any) => {
+  const handleFieldChange = (fieldName: string, value: unknown) => {
     if (onUpdate) {
       onUpdate({ ...fields, [fieldName]: value });
     }
   };
 
-  const handleCardChange = (index: number, cardField: string, value: any) => {
+  const handleCardChange = (index: number, cardField: string, value: unknown) => {
     const newCards = [...cards];
     newCards[index] = { ...newCards[index], [cardField]: value };
     handleFieldChange('cards', newCards);
@@ -92,13 +92,13 @@ const DynamicBentoSection: React.FC<DynamicBentoSectionProps> = ({ section, isEd
             {isEditMode ? (
               <input
                 type="text"
-                value={fields.title || ''}
+                value={String(fields.title || '')}
                 onChange={(e) => handleFieldChange('title', e.target.value)}
                 className="w-full bg-gray-800/50 border border-gray-600 rounded px-3 py-2 text-white outline-none focus:border-blue-400"
                 placeholder="Section title"
               />
             ) : (
-              fields.title || 'Bento Section'
+              String(fields.title || 'Bento Section')
             )}
           </h2>
 
@@ -107,13 +107,13 @@ const DynamicBentoSection: React.FC<DynamicBentoSectionProps> = ({ section, isEd
               {isEditMode ? (
                 <input
                   type="text"
-                  value={fields.subtitle || ''}
+                  value={String(fields.subtitle || '')}
                   onChange={(e) => handleFieldChange('subtitle', e.target.value)}
                   className="w-full bg-gray-800/50 border border-gray-600 rounded px-3 py-2 text-gray-400 outline-none focus:border-blue-400"
                   placeholder="Section subtitle (optional)"
                 />
               ) : (
-                fields.subtitle
+                String(fields.subtitle || '')
               )}
             </p>
           )}

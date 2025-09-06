@@ -465,7 +465,7 @@ export default function CMSContent() {
                   In edit mode, you can:
                 </p>
                 <ul className="text-sm text-blue-700 dark:text-blue-400 mt-2 space-y-1">
-                  <li>• <strong>Add features</strong>: Click "+ Add Feature" under any solution</li>
+                  <li>• <strong>Add features</strong>: Click &quot;+ Add Feature&quot; under any solution</li>
                   <li>• <strong>Edit features</strong>: Click on any feature text to modify it</li>
                   <li>• <strong>Remove features</strong>: Hover over a feature and click the trash icon</li>
                 </ul>

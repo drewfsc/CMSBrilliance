@@ -30,11 +30,11 @@ const StyledMailChimpForm: React.FC<StyledMailChimpFormProps> = ({
 
     // Initialize MailChimp validation
     script.onload = () => {
-      if (typeof window !== 'undefined' && (window as any).jQuery) {
-        (window as any).fnames = new Array();
-        (window as any).ftypes = new Array();
-        (window as any).fnames[0] = 'EMAIL';
-        (window as any).ftypes[0] = 'email';
+      if (typeof window !== 'undefined' && (window as unknown as { jQuery: unknown }).jQuery) {
+        (window as unknown as { fnames: unknown[] }).fnames = [];
+        (window as unknown as { ftypes: unknown[] }).ftypes = [];
+        (window as unknown as { fnames: unknown[] }).fnames[0] = 'EMAIL';
+        (window as unknown as { ftypes: unknown[] }).ftypes[0] = 'email';
       }
     };
 
