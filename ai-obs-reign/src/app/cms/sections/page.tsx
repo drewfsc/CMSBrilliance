@@ -93,6 +93,14 @@ export default function CMSSections() {
     }
   };
 
+  const handleUpdateNavigationLabel = (sectionId: string, label: string) => {
+    CMSDataManager.updateDynamicSection(sectionId, {
+      navigationLabel: label
+    });
+    loadSections();
+    setHasChanges(true);
+  };
+
   const handleUpdateSection = (sectionId: string, fields: Record<string, any>) => {
     CMSDataManager.updateDynamicSection(sectionId, { fields });
     loadSections();
@@ -233,25 +241,36 @@ export default function CMSSections() {
     // Get the section's background styling and adapt it for the card
     const { containerStyle } = SectionStylingUtils.getSectionStyles(section.styling);
     
-    // Create a subtle version of the section's background for the card
+    // Create a visible version of the section's background for the card
     let cardStyle: React.CSSProperties = {};
     
     if (containerStyle.background) {
-      // For gradients, create a more subtle overlay effect
+      // For gradients, create a subtle but visible overlay effect
       if (typeof containerStyle.background === 'string' && containerStyle.background.includes('gradient')) {
-        // Create a subtle version of the gradient as an overlay
-        cardStyle.backgroundImage = `${containerStyle.background}, linear-gradient(135deg, rgba(249, 250, 251, 0.9) 0%, rgba(243, 244, 246, 0.9) 100%)`;
-        cardStyle.backgroundBlendMode = 'overlay';
+        // Blend the gradient with a light neumorphic base
+        cardStyle.background = `linear-gradient(135deg, rgba(249, 250, 251, 0.7) 0%, rgba(243, 244, 246, 0.7) 100%), ${containerStyle.background}`;
+        cardStyle.backgroundBlendMode = 'normal';
       } else {
-        // For solid colors, use as a subtle tint
-        cardStyle.background = `linear-gradient(135deg, rgba(249, 250, 251, 0.85) 0%, rgba(243, 244, 246, 0.85) 100%), ${containerStyle.background}`;
+        // For solid colors, create a tinted neumorphic background
+        cardStyle.background = `linear-gradient(135deg, rgba(249, 250, 251, 0.8) 0%, rgba(243, 244, 246, 0.8) 100%)`;
+        cardStyle.borderLeft = `4px solid ${containerStyle.background}`;
       }
     } else if (containerStyle.backgroundColor) {
-      // For solid background colors, blend with the card background
-      cardStyle.background = `linear-gradient(135deg, rgba(249, 250, 251, 0.85) 0%, rgba(243, 244, 246, 0.85) 100%), ${containerStyle.backgroundColor}`;
+      // For solid background colors, use as accent with neumorphic base
+      cardStyle.background = `linear-gradient(135deg, rgba(249, 250, 251, 0.8) 0%, rgba(243, 244, 246, 0.8) 100%)`;
+      cardStyle.borderLeft = `4px solid ${containerStyle.backgroundColor}`;
     } else {
       // Default neumorphic background
       cardStyle.background = 'linear-gradient(135deg, rgba(249, 250, 251, 0.95) 0%, rgba(243, 244, 246, 0.95) 100%)';
+    }
+    
+    // Dark mode adjustments
+    if (typeof window !== 'undefined' && document.documentElement.classList.contains('dark')) {
+      if (containerStyle.background && typeof containerStyle.background === 'string' && containerStyle.background.includes('gradient')) {
+        cardStyle.background = `linear-gradient(135deg, rgba(31, 41, 55, 0.7) 0%, rgba(17, 24, 39, 0.7) 100%), ${containerStyle.background}`;
+      } else {
+        cardStyle.background = 'linear-gradient(135deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 0.95) 100%)';
+      }
     }
     
     return cardStyle;
@@ -350,10 +369,7 @@ export default function CMSSections() {
                       ? 'shadow-neumorphic-hover transform -translate-y-1' 
                       : 'shadow-neumorphic hover:shadow-neumorphic-hover cursor-grab'
                   } border-0`}
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(249, 250, 251, 0.95) 0%, rgba(243, 244, 246, 0.95) 100%)',
-                    ...getSectionCardStyling(section)
-                  }}
+                  style={getSectionCardStyling(section)}
                 >
                 {/* Section Header */}
                 <div 
@@ -499,6 +515,38 @@ export default function CMSSections() {
                   </div>
                 </div>
 
+                {/* Navigation Label Input - Show when navigation is enabled */}
+                {!isCollapsed && section.includeInNavigation && (
+                  <div className="bg-green-50 dark:bg-green-900/20 border-t border-green-200 dark:border-green-800 px-6 py-4">
+                    <div className="flex items-center space-x-4">
+                      <Menu className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium text-green-700 dark:text-green-300 mb-2">
+                          Navigation Label
+                        </label>
+                        <input
+                          type="text"
+                          value={section.navigationLabel || ''}
+                          onChange={(e) => handleUpdateNavigationLabel(section.id, e.target.value)}
+                          placeholder={section.name}
+                          className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-green-300 dark:border-green-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 dark:text-white"
+                        />
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                          This label will appear in the header navigation. Leave empty to use section name.
+                        </p>
+                      </div>
+                      <div className="text-sm text-green-600 dark:text-green-400">
+                        <div className="bg-green-100 dark:bg-green-900/40 px-3 py-2 rounded-lg">
+                          <div className="font-medium">Preview:</div>
+                          <div className="text-xs mt-1">
+                            "{section.navigationLabel || section.name}"
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Section Preview - Only show if not collapsed */}
                 {!isCollapsed && (
                   <div className={`${section.isVisible ? '' : 'opacity-50'}`}>
@@ -544,7 +592,7 @@ export default function CMSSections() {
                         )}
                         {section.includeInNavigation && (
                           <span className="text-xs bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 px-2 py-1 rounded">
-                            IN NAV
+                            NAV: {section.navigationLabel || section.name}
                           </span>
                         )}
                       </div>

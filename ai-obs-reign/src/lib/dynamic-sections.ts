@@ -28,6 +28,7 @@ export interface DynamicSection {
   order: number;
   isVisible: boolean;
   includeInNavigation: boolean; // Whether to show in header navigation
+  navigationLabel?: string; // Custom label for navigation (defaults to name)
   fields: Record<string, any>; // Actual content values
   schema: SectionField[]; // Field definitions
   styling: SectionStyling; // Visual styling options

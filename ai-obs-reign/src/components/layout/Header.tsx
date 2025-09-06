@@ -21,19 +21,28 @@ const Header = () => {
 
   // Load dynamic navigation items
   useEffect(() => {
-    const dynamicSections = CMSDataManager.getDynamicSections();
-    const navigationSections = dynamicSections
-      .filter(section => section.isVisible && section.includeInNavigation)
-      .sort((a, b) => a.order - b.order)
-      .map(section => ({
-        name: section.name,
-        href: `#${section.id}`
-      }));
+    const loadNavigation = () => {
+      const dynamicSections = CMSDataManager.getDynamicSections();
+      const navigationSections = dynamicSections
+        .filter(section => section.isVisible && section.includeInNavigation)
+        .sort((a, b) => a.order - b.order)
+        .map(section => ({
+          name: section.navigationLabel || section.name,
+          href: `#${section.id}`
+        }));
 
-    setNavigation([
-      { name: 'Home', href: '/' },
-      ...navigationSections
-    ]);
+      setNavigation([
+        { name: 'Home', href: '/' },
+        ...navigationSections
+      ]);
+    };
+
+    loadNavigation();
+    
+    // Refresh navigation every 5 seconds to pick up changes
+    const interval = setInterval(loadNavigation, 5000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
