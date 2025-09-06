@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
 // Supabase CMS Data Management
 // This file provides the foundation for Supabase integration
 // Currently uses localStorage but can be easily extended to use Supabase
