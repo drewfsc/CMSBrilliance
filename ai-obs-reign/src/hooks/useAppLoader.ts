@@ -6,7 +6,7 @@ export const useAppLoader = (initialLoading = true, delay = 0) => {
   useEffect(() => {
     if (delay > 0) {
       const timer = setTimeout(() => {
-        // setIsLoading(false);
+        setIsLoading(false);
       }, delay);
       return () => clearTimeout(timer);
     }
