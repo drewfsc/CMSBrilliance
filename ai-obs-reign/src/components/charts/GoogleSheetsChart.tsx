@@ -80,7 +80,7 @@ const GoogleSheetsChart: React.FC<GoogleSheetsChartProps> = ({
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysisResult | null>(null);
   const [insights, setInsights] = useState<string[]>([]);
   const [showSettings, setShowSettings] = useState(false);
-  const chartRef = useRef<ChartJS>(null);
+  const chartRef = useRef<ChartJS<'bar' | 'line' | 'pie'>>(null);
 
   const fetchData = async () => {
     if (!googleSheetUrl) {
@@ -140,11 +140,11 @@ const GoogleSheetsChart: React.FC<GoogleSheetsChartProps> = ({
       const parsedData = GoogleSheetsManager.parseDataForChart(
         rawData, 
         analysis?.chartType || chartType,
-        analysis
+        analysis ?? undefined
       );
 
       setChartData(parsedData);
-      setAiAnalysis(analysis);
+      setAiAnalysis(analysis ?? null);
       setInsights(dataInsights);
       setLastUpdated(new Date());
       onDataLoad?.(parsedData);
@@ -186,7 +186,7 @@ const GoogleSheetsChart: React.FC<GoogleSheetsChartProps> = ({
 
   useEffect(() => {
     fetchData();
-  }, [googleSheetUrl, sheetName, dataRange, chartType]);
+  }, [googleSheetUrl, sheetName, dataRange, chartType, fetchData]);
 
   // Auto refresh effect
   useEffect(() => {
@@ -197,7 +197,7 @@ const GoogleSheetsChart: React.FC<GoogleSheetsChartProps> = ({
     }, refreshInterval * 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [refreshInterval]);
+  }, [refreshInterval, fetchData]);
 
   const handleRefresh = () => {
     fetchData();
@@ -315,19 +315,23 @@ const GoogleSheetsChart: React.FC<GoogleSheetsChartProps> = ({
 
     const chartProps = {
       ref: chartRef,
-      data: chartData as ChartData<'bar' | 'line' | 'pie'>,
+      data: chartData,
       options: getChartOptions(),
     };
 
     switch (chartType) {
       case 'bar':
-        return <Bar {...chartProps} />;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return <Bar {...(chartProps as any)} />;
       case 'line':
-        return <Line {...chartProps} />;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return <Line {...(chartProps as any)} />;
       case 'pie':
-        return <Pie {...chartProps} />;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return <Pie {...(chartProps as any)} />;
       default:
-        return <Bar {...chartProps} />;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return <Bar {...(chartProps as any)} />;
     }
   };
 
