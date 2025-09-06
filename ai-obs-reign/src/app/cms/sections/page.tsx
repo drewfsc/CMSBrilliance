@@ -328,13 +328,22 @@ export default function CMSSections() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Manage Sections</h1>
+            {/* <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Manage Sections</h1>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
               Drag section types from the sidebar or use the add button
-            </p>
+            </p> */}
           </div>
           
-          <div className="flex items-center space-x-3">
+          
+        </div>
+
+        {/* Main Content Layout - Split 50/50 */}
+        <div className="grid  lg:grid-cols-3 gap-8">
+          {/* Left Side - Section Types */}
+          <div className="space-y-6 col-span-1">
+            <div>
+              <div className="flex justify-between">
+                <div className="flex items-center space-x-3">
             <button
               onClick={() => setIsModalOpen(true)}
               className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg btn-neumorphic hover:from-blue-600 hover:to-blue-700 flex items-center space-x-2 border-0"
@@ -342,21 +351,19 @@ export default function CMSSections() {
               <Plus className="w-4 h-4" />
               <span>Add Section</span>
             </button>
-          </div>
-        </div>
-
-        {/* Main Content Layout - Split 50/50 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Side - Section Types */}
-          <div className="space-y-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Section Types</h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
                 Drag section types to add them to your page
               </p>
+              </div>
+          </div>
+              </div>
+              
+       
               
               {/* Section Types Grid */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 {SECTION_TEMPLATES.map((template) => {
                   // Map template layout to icon component
                   const getIconComponent = (layout: string) => {
@@ -399,18 +406,16 @@ export default function CMSSections() {
                       draggable
                       onDragStart={(e) => handleTemplateDragStart(template, template.name)}
                       onDragEnd={handleTemplateDragEnd}
-                      className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic hover:shadow-neumorphic-hover transition-all duration-300 cursor-grab active:cursor-grabbing border-0 group"
+                      className="w-[110px] h-[110px] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic hover:shadow-neumorphic-hover transition-all duration-300 cursor-grab active:cursor-grabbing border-0 group relative"
+                      title={template.description}
                     >
-                      <div className="h-full flex flex-col items-center justify-center p-4 text-center">
-                        <div className={`w-12 h-12 rounded-lg ${color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                          <Icon className="w-6 h-6" />
+                      <div className="h-full flex flex-col items-center justify-center p-2 text-center">
+                        <div className={`w-8 h-8 rounded-lg ${color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                          <Icon className="w-4 h-4" />
                         </div>
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                        <h3 className="text-xs font-semibold text-gray-900 dark:text-white mt-1 leading-tight">
                           {template.name}
                         </h3>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                          {template.description}
-                        </p>
                       </div>
                     </div>
                   );
@@ -420,7 +425,7 @@ export default function CMSSections() {
           </div>
 
           {/* Right Side - Active Sections */}
-          <div className="space-y-6">
+          <div className="space-y-6 col-span-2">
             <div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Active Sections</h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
