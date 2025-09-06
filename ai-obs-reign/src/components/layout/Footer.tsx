@@ -52,7 +52,7 @@ const Footer = () => {
           {/* Logo and Description */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center overflow-hidden">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
                 {siteIcon ? (
                   <img 
                     src={siteIcon} 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Layout, Grid3x3, LayoutGrid, Columns } from 'lucide-react';
+import { X, Layout, Grid3x3, LayoutGrid, Columns, Minus, Image, Code, Images, FileText } from 'lucide-react';
 import { SECTION_TEMPLATES, SectionLayout, SectionTemplate } from '@/lib/dynamic-sections';
 
 interface SectionTypeModalProps {
@@ -14,7 +14,12 @@ const iconMap = {
   Layout,
   Grid3x3,
   LayoutGrid,
-  Columns
+  Columns,
+  Minus,
+  Image,
+  Code,
+  Images,
+  FileText
 };
 
 const SectionTypeModal: React.FC<SectionTypeModalProps> = ({ isOpen, onClose, onSelect }) => {
@@ -190,6 +195,52 @@ const SectionTypeModal: React.FC<SectionTypeModalProps> = ({ isOpen, onClose, on
                               <div className="h-2 bg-gray-300 dark:bg-gray-600 rounded w-5/6"></div>
                             </div>
                             <div className="h-16 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                          </div>
+                        )}
+
+                        {template.layout === 'divider' && (
+                          <div className="flex items-center space-x-2">
+                            <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+                            <div className="h-2 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
+                            <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+                          </div>
+                        )}
+
+                        {template.layout === 'image' && (
+                          <div className="space-y-2">
+                            <div className="h-12 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                            <div className="h-1 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mx-auto"></div>
+                          </div>
+                        )}
+
+                        {template.layout === 'code' && (
+                          <div className="bg-gray-800 rounded p-2 space-y-1">
+                            <div className="flex items-center space-x-1 mb-1">
+                              <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                              <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                            </div>
+                            <div className="h-1 bg-green-400 rounded w-1/3"></div>
+                            <div className="h-1 bg-blue-400 rounded w-1/2"></div>
+                            <div className="h-1 bg-green-400 rounded w-2/3"></div>
+                          </div>
+                        )}
+
+                        {template.layout === 'gallery' && (
+                          <div className="grid grid-cols-3 gap-1">
+                            {[...Array(6)].map((_, i) => (
+                              <div key={i} className="h-6 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                            ))}
+                          </div>
+                        )}
+
+                        {template.layout === 'form' && (
+                          <div className="space-y-2">
+                            <div className="h-2 bg-gray-300 dark:bg-gray-600 rounded w-1/4"></div>
+                            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded border border-gray-300 dark:border-gray-600"></div>
+                            <div className="h-2 bg-gray-300 dark:bg-gray-600 rounded w-1/3"></div>
+                            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded border border-gray-300 dark:border-gray-600"></div>
+                            <div className="h-6 bg-blue-400 rounded w-1/2 mt-3"></div>
                           </div>
                         )}
                       </div>

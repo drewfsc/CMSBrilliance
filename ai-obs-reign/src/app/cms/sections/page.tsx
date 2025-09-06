@@ -27,6 +27,11 @@ import DynamicHeroSection from '@/components/sections/dynamic/DynamicHeroSection
 import DynamicBentoSection from '@/components/sections/dynamic/DynamicBentoSection';
 import DynamicGridSection from '@/components/sections/dynamic/DynamicGridSection';
 import DynamicColumnsSection from '@/components/sections/dynamic/DynamicColumnsSection';
+import DynamicDividerSection from '@/components/sections/dynamic/DynamicDividerSection';
+import DynamicImageSection from '@/components/sections/dynamic/DynamicImageSection';
+import DynamicCodeSection from '@/components/sections/dynamic/DynamicCodeSection';
+import DynamicGallerySection from '@/components/sections/dynamic/DynamicGallerySection';
+import DynamicFormSection from '@/components/sections/dynamic/DynamicFormSection';
 
 export default function CMSSections() {
   const [sections, setSections] = useState<DynamicSection[]>([]);
@@ -299,6 +304,16 @@ export default function CMSSections() {
         return <DynamicGridSection {...sectionProps} />;
       case 'columns':
         return <DynamicColumnsSection {...sectionProps} />;
+      case 'divider':
+        return <DynamicDividerSection {...sectionProps} />;
+      case 'image':
+        return <DynamicImageSection {...sectionProps} />;
+      case 'code':
+        return <DynamicCodeSection {...sectionProps} />;
+      case 'gallery':
+        return <DynamicGallerySection {...sectionProps} />;
+      case 'form':
+        return <DynamicFormSection {...sectionProps} />;
       default:
         return <div>Unknown section type</div>;
     }
