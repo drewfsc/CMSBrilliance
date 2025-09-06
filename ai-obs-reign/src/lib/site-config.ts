@@ -10,6 +10,7 @@ export interface SiteConfig {
   id: string;
   siteName: string;
   siteDescription: string;
+  siteIcon?: string; // URL or path to site icon
   brandColors: SiteColors[];
   backgroundColors: SiteColors[];
   updatedAt: string;
@@ -108,5 +109,22 @@ export class SiteConfigManager {
   static resetToDefaults(): void {
     if (typeof window === 'undefined') return;
     localStorage.removeItem(this.CONFIG_KEY);
+  }
+
+  static updateSiteIcon(iconUrl: string): void {
+    const config = this.getSiteConfig();
+    config.siteIcon = iconUrl;
+    this.saveSiteConfig(config);
+  }
+
+  static getSiteIcon(): string | null {
+    const config = this.getSiteConfig();
+    return config.siteIcon || null;
+  }
+
+  static removeSiteIcon(): void {
+    const config = this.getSiteConfig();
+    delete config.siteIcon;
+    this.saveSiteConfig(config);
   }
 }

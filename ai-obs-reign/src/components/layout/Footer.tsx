@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
+import { SiteConfigManager } from '@/lib/site-config';
 
 const Footer = () => {
+  const [siteIcon, setSiteIcon] = useState<string | null>(null);
+
+  useEffect(() => {
+    const icon = SiteConfigManager.getSiteIcon();
+    setSiteIcon(icon);
+  }, []);
+
   const footerLinks = {
     product: [
       { name: 'Features', href: '#features' },
@@ -44,8 +52,16 @@ const Footer = () => {
           {/* Logo and Description */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">OC</span>
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center overflow-hidden">
+                {siteIcon ? (
+                  <img 
+                    src={siteIcon} 
+                    alt="Site Icon" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-white font-bold text-sm">OC</span>
+                )}
               </div>
               <span className="text-xl font-bold">R.E.I.G.N</span>
             </div>

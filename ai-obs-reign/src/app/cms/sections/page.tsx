@@ -45,6 +45,11 @@ export default function CMSSections() {
   const loadSections = () => {
     const dynamicSections = CMSDataManager.getDynamicSections();
     setSections(dynamicSections);
+    
+    // Set all sections to collapsed by default on first load
+    if (collapsedSections.size === 0 && dynamicSections.length > 0) {
+      setCollapsedSections(new Set(dynamicSections.map(s => s.id)));
+    }
   };
 
   const handleAddSection = (template: SectionTemplate, name: string) => {

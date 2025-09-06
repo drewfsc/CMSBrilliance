@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Menu, X, LogOut, Settings } from 'lucide-react';
 import { CMSAuthManager } from '@/lib/cms-auth';
 import { CMSDataManager } from '@/lib/cms-data';
+import { SiteConfigManager } from '@/lib/site-config';
 import LeadCaptureModal from '@/components/ui/LeadCaptureModal';
 
 const Header = () => {
@@ -17,6 +18,7 @@ const Header = () => {
   const [navigation, setNavigation] = useState([
     { name: 'Home', href: '/' }
   ]);
+  const [siteIcon, setSiteIcon] = useState<string | null>(null);
   const router = useRouter();
 
   // Load dynamic navigation items
@@ -39,8 +41,16 @@ const Header = () => {
 
     loadNavigation();
     
-    // Refresh navigation every 5 seconds to pick up changes
-    const interval = setInterval(loadNavigation, 5000);
+    // Load site icon
+    const currentIcon = SiteConfigManager.getSiteIcon();
+    setSiteIcon(currentIcon);
+    
+    // Refresh navigation and icon every 5 seconds to pick up changes
+    const interval = setInterval(() => {
+      loadNavigation();
+      const updatedIcon = SiteConfigManager.getSiteIcon();
+      setSiteIcon(updatedIcon);
+    }, 5000);
     
     return () => clearInterval(interval);
   }, []);
@@ -81,8 +91,16 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">OC</span>
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center overflow-hidden">
+                {siteIcon ? (
+                  <img 
+                    src={siteIcon} 
+                    alt="Site Icon" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-white font-bold text-sm">OC</span>
+                )}
               </div>
               <span className="text-xl font-bold text-white">R.E.I.G.N</span>
             </Link>

@@ -1,9 +1,62 @@
 'use client';
 
 import CMSHeader from '@/components/cms/CMSHeader';
-import { Globe, Shield, Database, Bell, Users, Palette, Save, RotateCcw } from 'lucide-react';
+import { Globe, Shield, Database, Bell, Users, Palette, Save, RotateCcw, Upload, Image, X } from 'lucide-react';
+import { SiteConfigManager } from '@/lib/site-config';
+import { useState, useEffect } from 'react';
 
 export default function CMSSettings() {
+  const [siteIcon, setSiteIcon] = useState<string | null>(null);
+  const [iconPreview, setIconPreview] = useState<string | null>(null);
+  const [isUploadingIcon, setIsUploadingIcon] = useState(false);
+
+  useEffect(() => {
+    const currentIcon = SiteConfigManager.getSiteIcon();
+    setSiteIcon(currentIcon);
+    setIconPreview(currentIcon);
+  }, []);
+
+  const handleIconUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Icon file size must be less than 2MB');
+      return;
+    }
+
+    setIsUploadingIcon(true);
+
+    // Convert to base64 for storage (in a real app, you'd upload to a CDN)
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      setIconPreview(dataUrl);
+      setIsUploadingIcon(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveIcon = () => {
+    if (iconPreview) {
+      SiteConfigManager.updateSiteIcon(iconPreview);
+      setSiteIcon(iconPreview);
+    }
+  };
+
+  const handleRemoveIcon = () => {
+    SiteConfigManager.removeSiteIcon();
+    setSiteIcon(null);
+    setIconPreview(null);
+  };
+
   const settingsCategories = [
     {
       name: 'Site Configuration',
@@ -76,6 +129,117 @@ export default function CMSSettings() {
               </div>
             );
           })}
+        </div>
+
+        {/* Site Icon Configuration */}
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic p-8 mb-8 border-0">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Site Icon</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Upload a custom icon for your site. This will appear in the header and browser tabs.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Current Icon Display */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Current Icon</h3>
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center">
+                  {siteIcon ? (
+                    <img 
+                      src={siteIcon} 
+                      alt="Site Icon" 
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  ) : (
+                    <span className="text-white font-bold text-lg">OC</span>
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {siteIcon ? 'Custom icon uploaded' : 'Using default icon'}
+                  </p>
+                  {siteIcon && (
+                    <button
+                      onClick={handleRemoveIcon}
+                      className="text-red-600 hover:text-red-700 text-sm flex items-center mt-1"
+                    >
+                      <X className="w-3 h-3 mr-1" />
+                      Remove icon
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Icon Upload */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Upload New Icon</h3>
+              <div className="space-y-4">
+                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
+                  <div className="space-y-2">
+                    <Upload className="w-8 h-8 text-gray-400 mx-auto" />
+                    <div>
+                      <label htmlFor="icon-upload" className="cursor-pointer">
+                        <span className="text-blue-600 hover:text-blue-700 font-medium">
+                          Click to upload
+                        </span>
+                        <span className="text-gray-600 dark:text-gray-400"> or drag and drop</span>
+                      </label>
+                      <input
+                        id="icon-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleIconUpload}
+                        className="hidden"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      PNG, JPG, SVG up to 2MB. Recommended: 64x64px
+                    </p>
+                  </div>
+                </div>
+
+                {/* Preview */}
+                {iconPreview && iconPreview !== siteIcon && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                          <img 
+                            src={iconPreview} 
+                            alt="Icon Preview" 
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
+                            New Icon Preview
+                          </p>
+                          <p className="text-xs text-blue-700 dark:text-blue-400">
+                            Click save to apply changes
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => setIconPreview(siteIcon)}
+                          className="px-3 py-1 text-gray-600 hover:text-gray-800 text-sm"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleSaveIcon}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                        >
+                          Save Icon
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Site Colors Configuration */}

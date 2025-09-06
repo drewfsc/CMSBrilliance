@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Home, LogOut, User } from 'lucide-react';
 import { useDarkMode } from '@/lib/dark-mode-context';
 import { CMSAuthManager, CMSUser } from '@/lib/cms-auth';
+import { SiteConfigManager } from '@/lib/site-config';
 
 interface CMSHeaderProps {
   title: string;
@@ -18,13 +19,16 @@ const CMSHeader: React.FC<CMSHeaderProps> = ({ title, showBackButton = false }) 
   const [currentUser, setCurrentUser] = useState<CMSUser | null>(null);
   const [userDisplayName, setUserDisplayName] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [siteIcon, setSiteIcon] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
     const user = CMSAuthManager.getCurrentUser();
     const displayName = CMSAuthManager.getUserDisplayName();
+    const icon = SiteConfigManager.getSiteIcon();
     setCurrentUser(user);
     setUserDisplayName(displayName);
+    setSiteIcon(icon);
   }, []);
 
   const handleLogout = () => {
@@ -51,8 +55,16 @@ const CMSHeader: React.FC<CMSHeaderProps> = ({ title, showBackButton = false }) 
             )}
             
             <Link href="/cms/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">OC</span>
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center overflow-hidden">
+                {siteIcon ? (
+                  <img 
+                    src={siteIcon} 
+                    alt="Site Icon" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-white font-bold text-sm">OC</span>
+                )}
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">CMS</span>
             </Link>
