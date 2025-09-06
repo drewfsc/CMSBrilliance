@@ -1,8 +1,8 @@
 // Unified Email Marketing Service
 // Supports both Mailchimp and Constant Contact integrations
 
-import { MailChimpManager, MailChimpContact, MailChimpResponse } from './mailchimp';
-import { ConstantContactManager, ConstantContactContact, ConstantContactResponse } from './constant-contact';
+import { MailChimpManager, MailChimpContact } from './mailchimp';
+import { ConstantContactManager, ConstantContactContact } from './constant-contact';
 
 export type EmailProvider = 'mailchimp' | 'constant-contact' | 'both';
 
@@ -31,6 +31,13 @@ export interface EmailMarketingConfig {
   mailchimpEnabled: boolean;
   constantContactEnabled: boolean;
   fallbackEnabled: boolean; // Use secondary provider if primary fails
+}
+
+export interface ContactOptions {
+  doubleOptin?: boolean;
+  updateExisting?: boolean;
+  sendWelcome?: boolean;
+  [key: string]: unknown; // Allow additional provider-specific options
 }
 
 export class UnifiedEmailMarketingService {
@@ -70,10 +77,7 @@ export class UnifiedEmailMarketingService {
 
   // Add contact to both providers
   private async addToBothProviders(
-    contact: UnifiedContact,
-    listId: string,
-    options: any = {}
-  ): Promise<UnifiedResponse> {
+{ contact, listId, options = {} }: { contact: UnifiedContact; listId: string; options?: ContactOptions; }  ): Promise<UnifiedResponse> {
     const results: UnifiedResponse[] = [];
     let successCount = 0;
 
@@ -90,7 +94,7 @@ export class UnifiedEmailMarketingService {
           provider: 'mailchimp'
         });
         if (mailchimpResult.success) successCount++;
-      } catch (error) {
+      } catch {
         results.push({
           success: false,
           message: 'Mailchimp error',
@@ -113,7 +117,7 @@ export class UnifiedEmailMarketingService {
           provider: 'constant-contact'
         });
         if (ccResult.success) successCount++;
-      } catch (error) {
+      } catch {
         results.push({
           success: false,
           message: 'Constant Contact error',
@@ -137,7 +141,7 @@ export class UnifiedEmailMarketingService {
   private async addWithFallback(
     contact: UnifiedContact,
     listId: string,
-    options: any = {}
+    options: ContactOptions = {}
   ): Promise<UnifiedResponse> {
     const primaryProvider = this.config.primaryProvider;
     
@@ -206,14 +210,10 @@ export class UnifiedEmailMarketingService {
   async addContact(
     listId: string,
     contact: UnifiedContact,
-    options: {
-      doubleOptin?: boolean;
-      updateExisting?: boolean;
-      sendWelcome?: boolean;
-    } = {}
+    options: ContactOptions = {}
   ): Promise<UnifiedResponse> {
     if (this.config.primaryProvider === 'both') {
-      return this.addToBothProviders(contact, listId, options);
+      return this.addToBothProviders({ contact, listId, options });
     } else {
       return this.addWithFallback(contact, listId, options);
     }
