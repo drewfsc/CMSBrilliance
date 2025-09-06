@@ -67,18 +67,6 @@ const DynamicGallerySection: React.FC<DynamicGallerySectionProps> = ({ section, 
     handleFieldChange('images', newImages);
   };
 
-  const getGridColumns = () => {
-    switch (fields.columns) {
-      case '2':
-        return 'grid-cols-1 md:grid-cols-2';
-      case '4':
-        return 'grid-cols-2 md:grid-cols-4';
-      case '5':
-        return 'grid-cols-2 md:grid-cols-5';
-      default:
-        return 'grid-cols-1 md:grid-cols-3';
-    }
-  };
 
   // Lightbox and Carousel Functions
   const openLightbox = (index: number) => {
@@ -380,23 +368,7 @@ const DynamicGallerySection: React.FC<DynamicGallerySectionProps> = ({ section, 
         {/* Edit Mode Controls */}
         {isEditMode && (
           <div className="mt-8 bg-gray-100 dark:bg-gray-800 rounded-lg p-4 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Columns per Row
-                </label>
-                <select
-                  value={fields.columns || '3'}
-                  onChange={(e) => handleFieldChange('columns', e.target.value)}
-                  className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-3 py-2 text-gray-900 dark:text-white"
-                >
-                  <option value="2">2 Columns</option>
-                  <option value="3">3 Columns</option>
-                  <option value="4">4 Columns</option>
-                  <option value="5">5 Columns</option>
-                </select>
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center">
                 <label className="flex items-center space-x-2">
                   <input
@@ -428,165 +400,171 @@ const DynamicGallerySection: React.FC<DynamicGallerySectionProps> = ({ section, 
 
             {/* Gallery Features Info */}
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-300 mb-2">Gallery Features</h4>
+              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-300 mb-2">Carousel Gallery Features</h4>
               <div className="text-sm text-blue-700 dark:text-blue-400 space-y-1">
+                <div>• <strong>Carousel Layout:</strong> Full-width images with smooth transitions and navigation arrows</div>
                 <div>• <strong>Lightbox:</strong> Click images to view full-size with zoom, navigation, and download</div>
                 <div>• <strong>Keyboard Controls:</strong> Arrow keys to navigate, +/- to zoom, R to reset, D to download</div>
-                <div>• <strong>Thumbnail Strip:</strong> Quick navigation between images</div>
+                <div>• <strong>Thumbnail Strip:</strong> Quick navigation between images in lightbox</div>
                 <div>• <strong>Mouse Controls:</strong> Scroll to zoom, double-click to toggle zoom</div>
+                <div>• <strong>Indicators:</strong> Dot indicators show current position in carousel</div>
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Debug indicator */}
-      {lightboxOpen && (
-        <div className="fixed top-4 left-4 bg-red-500 text-white p-2 rounded z-[10000]">
-          Lightbox should be open!
-        </div>
-      )}
 
       {/* Enhanced Lightbox with Carousel */}
       {lightboxOpen && fields.enableLightbox !== false && images.length > 0 && (
         <div 
-          className="fixed inset-0 bg-black/95 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/95 flex items-center justify-center p-8"
           style={{ zIndex: 9999 }}
           onClick={closeLightbox}
         >
-          <div className="relative w-full h-full flex items-center justify-center">
-            {/* Close Button */}
-            <button
-              onClick={closeLightbox}
-              className="absolute top-4 right-4 p-3 bg-white/20 hover:bg-white/30 text-white rounded-full transition-colors z-10"
-            >
-              <X className="w-6 h-6" />
-            </button>
+          <div className="relative w-full h-full flex flex-col">
+            {/* Top Controls Bar */}
+            <div className="flex items-center justify-between mb-4">
+              {/* Close Button */}
+              <button
+                onClick={closeLightbox}
+                className="p-3 bg-white/20 hover:bg-white/30 text-white rounded-full transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
 
-            {/* Navigation Arrows */}
-            {images.length > 1 && (
-              <>
+              {/* Image Counter */}
+              <div className="text-white text-lg font-medium">
+                {currentImageIndex + 1} / {images.length}
+              </div>
+
+              {/* Action Controls */}
+              <div className="flex items-center space-x-3">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    prevImage();
+                    resetImageTransform();
                   }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/20 hover:bg-white/30 text-white rounded-full transition-colors z-10"
+                  className="p-3 bg-white/20 hover:bg-white/30 text-white rounded-full transition-colors"
+                  title="Reset zoom/rotation (R)"
                 >
-                  <ChevronLeft className="w-8 h-8" />
+                  <RotateCcw className="w-5 h-5" />
                 </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    nextImage();
+                    downloadImage();
                   }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/20 hover:bg-white/30 text-white rounded-full transition-colors z-10"
+                  className="p-3 bg-white/20 hover:bg-white/30 text-white rounded-full transition-colors"
+                  title="Download image (D)"
                 >
-                  <ChevronRight className="w-8 h-8" />
+                  <Download className="w-5 h-5" />
                 </button>
-              </>
-            )}
-
-            {/* Image Container */}
-            <div 
-              className="relative max-w-full max-h-full flex items-center justify-center"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img
-                src={images[currentImageIndex]?.url}
-                alt={images[currentImageIndex]?.alt || 'Gallery image'}
-                className="max-w-full max-h-full object-contain transition-transform duration-300"
-                style={{
-                  transform: `scale(${imageScale}) rotate(${imageRotation}deg)`
-                }}
-                onWheel={(e) => {
-                  e.preventDefault();
-                  const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                  setImageScale(prev => Math.max(0.5, Math.min(3, prev + delta)));
-                }}
-                onDoubleClick={() => {
-                  setImageScale(imageScale === 1 ? 2 : 1);
-                }}
-              />
+              </div>
             </div>
 
-            {/* Image Info and Controls */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-sm rounded-lg p-4 text-white">
-              <div className="flex items-center space-x-4">
-                {/* Image Counter */}
-                <div className="text-sm font-medium">
-                  {currentImageIndex + 1} / {images.length}
-                </div>
+            {/* Main Image Area */}
+            <div className="flex-1 flex items-center justify-center relative">
+              {/* Navigation Arrows */}
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      prevImage();
+                    }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-white/20 hover:bg-white/30 text-white rounded-full transition-colors z-10"
+                  >
+                    <ChevronLeft className="w-8 h-8" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      nextImage();
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-white/20 hover:bg-white/30 text-white rounded-full transition-colors z-10"
+                  >
+                    <ChevronRight className="w-8 h-8" />
+                  </button>
+                </>
+              )}
 
-                {/* Image Caption */}
-                {images[currentImageIndex]?.caption && (
-                  <div className="text-sm max-w-md">
-                    {images[currentImageIndex].caption}
+              {/* Image Container */}
+              <div 
+                className="relative max-w-full max-h-full flex items-center justify-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img
+                  src={images[currentImageIndex]?.url}
+                  alt={images[currentImageIndex]?.alt || 'Gallery image'}
+                  className="max-w-full max-h-full object-contain transition-transform duration-300"
+                  style={{
+                    transform: `scale(${imageScale}) rotate(${imageRotation}deg)`
+                  }}
+                  onWheel={(e) => {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                    setImageScale(prev => Math.max(0.5, Math.min(3, prev + delta)));
+                  }}
+                  onDoubleClick={() => {
+                    setImageScale(imageScale === 1 ? 2 : 1);
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Bottom Info Bar */}
+            <div className="mt-4">
+              {/* Image Caption */}
+              {images[currentImageIndex]?.caption && (
+                <div className="text-center mb-4">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-white max-w-2xl mx-auto">
+                    <p className="text-lg font-medium">
+                      {images[currentImageIndex].caption}
+                    </p>
                   </div>
-                )}
-
-                {/* Controls */}
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      resetImageTransform();
-                    }}
-                    className="p-2 hover:bg-white/20 rounded transition-colors"
-                    title="Reset zoom/rotation (R)"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      downloadImage();
-                    }}
-                    className="p-2 hover:bg-white/20 rounded transition-colors"
-                    title="Download image (D)"
-                  >
-                    <Download className="w-4 h-4" />
-                  </button>
                 </div>
-              </div>
-            </div>
+              )}
 
-            {/* Thumbnail Strip */}
-            {images.length > 1 && (
-              <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex space-x-2 max-w-full overflow-x-auto p-2">
-                {images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setCurrentImageIndex(index);
-                      setImageScale(1);
-                      setImageRotation(0);
-                    }}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                      index === currentImageIndex 
-                        ? 'border-white' 
-                        : 'border-white/30 hover:border-white/60'
-                    }`}
-                  >
-                    <img
-                      src={image.url}
-                      alt={image.alt || `Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
+              {/* Thumbnail Strip */}
+              {images.length > 1 && (
+                <div className="flex justify-center space-x-3 max-w-full overflow-x-auto p-2">
+                  {images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentImageIndex(index);
+                        setImageScale(1);
+                        setImageRotation(0);
+                      }}
+                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                        index === currentImageIndex 
+                          ? 'border-white' 
+                          : 'border-white/30 hover:border-white/60'
+                      }`}
+                    >
+                      <img
+                        src={image.url}
+                        alt={image.alt || `Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
 
-            {/* Keyboard Shortcuts Help */}
-            <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-sm rounded-lg p-3 text-white text-xs">
-              <div className="space-y-1">
-                <div><kbd className="bg-white/20 px-1 rounded">←</kbd> <kbd className="bg-white/20 px-1 rounded">→</kbd> Navigate</div>
-                <div><kbd className="bg-white/20 px-1 rounded">+</kbd> <kbd className="bg-white/20 px-1 rounded">-</kbd> Zoom</div>
-                <div><kbd className="bg-white/20 px-1 rounded">R</kbd> Reset</div>
-                <div><kbd className="bg-white/20 px-1 rounded">D</kbd> Download</div>
-                <div><kbd className="bg-white/20 px-1 rounded">Esc</kbd> Close</div>
+              {/* Keyboard Shortcuts Help */}
+              <div className="text-center mt-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-white text-xs inline-block">
+                  <div className="flex items-center space-x-4">
+                    <div><kbd className="bg-white/20 px-1 rounded">←</kbd> <kbd className="bg-white/20 px-1 rounded">→</kbd> Navigate</div>
+                    <div><kbd className="bg-white/20 px-1 rounded">+</kbd> <kbd className="bg-white/20 px-1 rounded">-</kbd> Zoom</div>
+                    <div><kbd className="bg-white/20 px-1 rounded">R</kbd> Reset</div>
+                    <div><kbd className="bg-white/20 px-1 rounded">D</kbd> Download</div>
+                    <div><kbd className="bg-white/20 px-1 rounded">Esc</kbd> Close</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
