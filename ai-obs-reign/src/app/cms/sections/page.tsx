@@ -3,24 +3,26 @@
 import React, { useState, useEffect } from 'react';
 import CMSHeader from '@/components/cms/CMSHeader';
 import SectionTypeModal from '@/components/cms/SectionTypeModal';
-import SectionTypeSidebar from '@/components/cms/SectionTypeSidebar';
 import SectionStylingPanel from '@/components/cms/SectionStylingPanel';
 import { CMSDataManager } from '@/lib/cms-data';
-import { DynamicSection, createSection, SectionTemplate, SectionStyling } from '@/lib/dynamic-sections';
-import { SectionStylingUtils } from '@/lib/section-styling';
+import { DynamicSection, createSection, SectionTemplate, SectionStyling, SECTION_TEMPLATES } from '@/lib/dynamic-sections';
 import { 
   Plus, 
   Trash2, 
-  Edit3, 
   Eye, 
   EyeOff, 
   GripVertical,
-  Save,
-  X,
-  ChevronDown,
-  ChevronUp,
   Copy,
-  Menu
+  Menu,
+  Layout,
+  Grid3x3,
+  LayoutGrid,
+  Columns,
+  Minus,
+  Image,
+  Code,
+  Images,
+  FileText
 } from 'lucide-react';
 
 // Import section components
@@ -38,8 +40,6 @@ export default function CMSSections() {
   const [sections, setSections] = useState<DynamicSection[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSection, setEditingSection] = useState<string | null>(null);
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
-  const [stylingPanelOpen, setStylingPanelOpen] = useState<Set<string>>(new Set());
   const [hasChanges, setHasChanges] = useState(false);
   const [draggedSection, setDraggedSection] = useState<string | null>(null);
   const [dragOverSection, setDragOverSection] = useState<string | null>(null);
@@ -52,11 +52,6 @@ export default function CMSSections() {
   const loadSections = () => {
     const dynamicSections = CMSDataManager.getDynamicSections();
     setSections(dynamicSections);
-    
-    // Set all sections to collapsed by default on first load
-    if (collapsedSections.size === 0 && dynamicSections.length > 0) {
-      setCollapsedSections(new Set(dynamicSections.map(s => s.id)));
-    }
   };
 
   const handleAddSection = (template: SectionTemplate, name: string) => {
@@ -133,17 +128,6 @@ export default function CMSSections() {
     setHasChanges(true);
   };
 
-  const toggleStylingPanel = (sectionId: string) => {
-    setStylingPanelOpen(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(sectionId)) {
-        newSet.delete(sectionId);
-      } else {
-        newSet.add(sectionId);
-      }
-      return newSet;
-    });
-  };
 
   const handleDuplicateSection = (sectionId: string) => {
     const section = sections.find(s => s.id === sectionId);
@@ -175,17 +159,6 @@ export default function CMSSections() {
     }
   };
 
-  const toggleSectionCollapse = (sectionId: string) => {
-    setCollapsedSections(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(sectionId)) {
-        newSet.delete(sectionId);
-      } else {
-        newSet.add(sectionId);
-      }
-      return newSet;
-    });
-  };
 
   // Drag and Drop Handlers
   const handleDragStart = (e: React.DragEvent, sectionId: string) => {
@@ -299,44 +272,6 @@ export default function CMSSections() {
     setDragOverSection(null);
   };
 
-  const getSectionCardStyling = (section: DynamicSection) => {
-    // Get the section's background styling and adapt it for the card
-    const { containerStyle } = SectionStylingUtils.getSectionStyles(section.styling);
-    
-    // Create a visible version of the section's background for the card
-    let cardStyle: React.CSSProperties = {};
-    
-    if (containerStyle.background) {
-      // For gradients, create a subtle but visible overlay effect
-      if (typeof containerStyle.background === 'string' && containerStyle.background.includes('gradient')) {
-        // Blend the gradient with a light neumorphic base
-        cardStyle.background = `linear-gradient(135deg, rgba(249, 250, 251, 0.7) 0%, rgba(243, 244, 246, 0.7) 100%), ${containerStyle.background}`;
-        cardStyle.backgroundBlendMode = 'normal';
-      } else {
-        // For solid colors, create a tinted neumorphic background
-        cardStyle.background = `linear-gradient(135deg, rgba(249, 250, 251, 0.8) 0%, rgba(243, 244, 246, 0.8) 100%)`;
-        cardStyle.borderLeft = `4px solid ${containerStyle.background}`;
-      }
-    } else if (containerStyle.backgroundColor) {
-      // For solid background colors, use as accent with neumorphic base
-      cardStyle.background = `linear-gradient(135deg, rgba(249, 250, 251, 0.8) 0%, rgba(243, 244, 246, 0.8) 100%)`;
-      cardStyle.borderLeft = `4px solid ${containerStyle.backgroundColor}`;
-    } else {
-      // Default neumorphic background
-      cardStyle.background = 'linear-gradient(135deg, rgba(249, 250, 251, 0.95) 0%, rgba(243, 244, 246, 0.95) 100%)';
-    }
-    
-    // Dark mode adjustments
-    if (typeof window !== 'undefined' && document.documentElement.classList.contains('dark')) {
-      if (containerStyle.background && typeof containerStyle.background === 'string' && containerStyle.background.includes('gradient')) {
-        cardStyle.background = `linear-gradient(135deg, rgba(31, 41, 55, 0.7) 0%, rgba(17, 24, 39, 0.7) 100%), ${containerStyle.background}`;
-      } else {
-        cardStyle.background = 'linear-gradient(135deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 0.95) 100%)';
-      }
-    }
-    
-    return cardStyle;
-  };
 
   const renderSectionPreview = (section: DynamicSection) => {
     const isEditing = editingSection === section.id;
@@ -400,23 +335,6 @@ export default function CMSSections() {
           </div>
           
           <div className="flex items-center space-x-3">
-            {sections.length > 0 && (
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setCollapsedSections(new Set())}
-                  className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded"
-                >
-                  Expand All
-                </button>
-                <button
-                  onClick={() => setCollapsedSections(new Set(sections.map(s => s.id)))}
-                  className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded"
-                >
-                  Collapse All
-                </button>
-              </div>
-            )}
-            
             <button
               onClick={() => setIsModalOpen(true)}
               className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg btn-neumorphic hover:from-blue-600 hover:to-blue-700 flex items-center space-x-2 border-0"
@@ -427,17 +345,95 @@ export default function CMSSections() {
           </div>
         </div>
 
-        {/* Main Content Layout */}
-        <div className="flex gap-8">
-          {/* Main Sections List */}
-          <div className="flex-1">
+        {/* Main Content Layout - Split 50/50 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Side - Section Types */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Section Types</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                Drag section types to add them to your page
+              </p>
+              
+              {/* Section Types Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                {SECTION_TEMPLATES.map((template) => {
+                  // Map template layout to icon component
+                  const getIconComponent = (layout: string) => {
+                    switch (layout) {
+                      case 'hero': return Layout;
+                      case 'bento': return Grid3x3;
+                      case 'grid': return LayoutGrid;
+                      case 'columns': return Columns;
+                      case 'divider': return Minus;
+                      case 'image': return Image;
+                      case 'code': return Code;
+                      case 'gallery': return Images;
+                      case 'form': return FileText;
+                      default: return Layout;
+                    }
+                  };
 
-        {/* Section List */}
-        <div className="space-y-8">
+                  // Map template layout to color
+                  const getColor = (layout: string) => {
+                    switch (layout) {
+                      case 'hero': return 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300';
+                      case 'bento': return 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300';
+                      case 'grid': return 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300';
+                      case 'columns': return 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300';
+                      case 'divider': return 'bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-300';
+                      case 'image': return 'bg-pink-100 text-pink-600 dark:bg-pink-900 dark:text-pink-300';
+                      case 'code': return 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300';
+                      case 'gallery': return 'bg-teal-100 text-teal-600 dark:bg-teal-900 dark:text-teal-300';
+                      case 'form': return 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300';
+                      default: return 'bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-300';
+                    }
+                  };
+
+                  const Icon = getIconComponent(template.layout);
+                  const color = getColor(template.layout);
+
+                  return (
+                    <div
+                      key={template.layout}
+                      draggable
+                      onDragStart={(e) => handleTemplateDragStart(template, template.name)}
+                      onDragEnd={handleTemplateDragEnd}
+                      className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic hover:shadow-neumorphic-hover transition-all duration-300 cursor-grab active:cursor-grabbing border-0 group"
+                    >
+                      <div className="h-full flex flex-col items-center justify-center p-4 text-center">
+                        <div className={`w-12 h-12 rounded-lg ${color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                          <Icon className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                          {template.name}
+                        </h3>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                          {template.description}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side - Active Sections */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Active Sections</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                Drag to reorder sections or click edit to modify
+              </p>
+            </div>
+
+            {/* Section List */}
+        <div className="space-y-4">
           {/* Top Drop Zone */}
           {draggedTemplate && (
             <div 
-              className="h-16 border-2 border-dashed border-blue-400 dark:border-blue-500 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center"
+              className="h-12 border-2 border-dashed border-blue-400 dark:border-blue-500 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center"
               onDragOver={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -470,35 +466,27 @@ export default function CMSSections() {
                   // Automatically enter edit mode for the new section
                   setEditingSection(newSection.id);
                   
-                  // Scroll to the new section
-                  setTimeout(() => {
-                    const element = document.querySelector(`[data-section-id="${newSection.id}"]`);
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                  }, 100);
-                  
                   setDraggedTemplate(null);
                 }
               }}
             >
-              <div className="text-blue-600 dark:text-blue-400 font-medium">
+              <div className="text-blue-600 dark:text-blue-400 font-medium text-sm">
                 Drop here to add at the top
               </div>
             </div>
           )}
           
           {sections.map((section, index) => {
-            const isCollapsed = collapsedSections.has(section.id);
             const isDragging = draggedSection === section.id;
             const isDragOver = dragOverSection === section.id;
+            const isEditing = editingSection === section.id;
             
             return (
               <React.Fragment key={section.id}>
                 {/* Dedicated drop zone before each section */}
                 {draggedTemplate && (
                   <div 
-                    className="h-12 border-2 border-dashed border-blue-300 dark:border-blue-600 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center transition-all duration-200"
+                    className="h-8 border-2 border-dashed border-blue-300 dark:border-blue-600 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center transition-all duration-200"
                     onDragOver={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -533,19 +521,11 @@ export default function CMSSections() {
                         // Automatically enter edit mode for the new section
                         setEditingSection(newSection.id);
                         
-                        // Scroll to the new section
-                        setTimeout(() => {
-                          const element = document.querySelector(`[data-section-id="${newSection.id}"]`);
-                          if (element) {
-                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                          }
-                        }, 100);
-                        
                         setDraggedTemplate(null);
                       }
                     }}
                   >
-                    <div className="text-blue-600 dark:text-blue-400 font-medium text-sm">
+                    <div className="text-blue-600 dark:text-blue-400 font-medium text-xs">
                       Drop here to add section
                     </div>
                   </div>
@@ -553,7 +533,7 @@ export default function CMSSections() {
                 
                 {/* Drop indicator - shows for section reordering */}
                 {isDragOver && draggedSection && draggedSection !== section.id && (
-                  <div className="h-3 bg-gradient-to-r from-blue-400 to-blue-500 dark:from-blue-500 dark:to-blue-600 rounded-full mx-4 animate-pulse shadow-lg">
+                  <div className="h-2 bg-gradient-to-r from-blue-400 to-blue-500 dark:from-blue-500 dark:to-blue-600 rounded-full mx-4 animate-pulse shadow-lg">
                     <div className="h-full bg-white/30 dark:bg-black/30 rounded-full flex items-center justify-center">
                       <span className="text-xs font-medium text-white drop-shadow-sm">
                         Drop to reorder
@@ -562,6 +542,7 @@ export default function CMSSections() {
                   </div>
                 )}
                 
+                {/* Single Line Section */}
                 <div
                   data-section-id={section.id}
                   draggable
@@ -570,257 +551,212 @@ export default function CMSSections() {
                   onDragOver={(e) => handleDragOver(e, section.id)}
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, section.id)}
-                  className={`rounded-lg transition-all duration-200 ${
+                  className={`bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic border-0 transition-all duration-200 ${
                     isDragging 
-                      ? 'opacity-50 scale-95 shadow-neumorphic-hover cursor-grabbing' 
+                      ? 'opacity-50 scale-95 cursor-grabbing' 
                       : isDragOver 
-                      ? 'shadow-neumorphic-hover transform -translate-y-1 border-2 border-blue-300 dark:border-blue-600' 
-                      : 'shadow-neumorphic hover:shadow-neumorphic-hover cursor-grab'
-                  } border-0`}
-                  style={getSectionCardStyling(section)}
+                      ? 'shadow-neumorphic-hover transform -translate-y-1 border-l-4 border-blue-400' 
+                      : 'hover:shadow-neumorphic-hover cursor-grab'
+                  }`}
                 >
-                {/* Section Header */}
-                <div 
-                  className="px-6 py-4 border-b border-gray-200 dark:border-gray-700"
-                  draggable={false}
-                  onDragStart={(e) => e.preventDefault()}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <button
-                        className={`p-1 rounded transition-colors ${
-                          isDragging ? 'bg-blue-100 dark:bg-blue-800' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                        }`}
-                        title="Drag to reorder (or use keyboard: Arrow keys + Ctrl)"
-                        onKeyDown={(e) => {
-                          if (e.ctrlKey) {
-                            const currentIndex = sections.findIndex(s => s.id === section.id);
-                            if (e.key === 'ArrowUp' && currentIndex > 0) {
-                              e.preventDefault();
-                              const reorderedSections = [...sections];
-                              [reorderedSections[currentIndex], reorderedSections[currentIndex - 1]] = 
-                                [reorderedSections[currentIndex - 1], reorderedSections[currentIndex]];
-                              
-                              reorderedSections.forEach((s, i) => s.order = i);
-                              CMSDataManager.saveDynamicSections(reorderedSections);
-                              loadSections();
-                              setHasChanges(true);
-                            } else if (e.key === 'ArrowDown' && currentIndex < sections.length - 1) {
-                              e.preventDefault();
-                              const reorderedSections = [...sections];
-                              [reorderedSections[currentIndex], reorderedSections[currentIndex + 1]] = 
-                                [reorderedSections[currentIndex + 1], reorderedSections[currentIndex]];
-                              
-                              reorderedSections.forEach((s, i) => s.order = i);
-                              CMSDataManager.saveDynamicSections(reorderedSections);
-                              loadSections();
-                              setHasChanges(true);
+                  <div className="px-4 py-3">
+                    <div className="flex items-center justify-between">
+                      {/* Left side - Drag handle and section info */}
+                      <div className="flex items-center space-x-4 flex-1">
+                        <button
+                          className={`p-1 rounded transition-colors ${
+                            isDragging ? 'bg-blue-100 dark:bg-blue-800' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                          }`}
+                          title="Drag to reorder"
+                          onKeyDown={(e) => {
+                            if (e.ctrlKey) {
+                              const currentIndex = sections.findIndex(s => s.id === section.id);
+                              if (e.key === 'ArrowUp' && currentIndex > 0) {
+                                e.preventDefault();
+                                const reorderedSections = [...sections];
+                                [reorderedSections[currentIndex], reorderedSections[currentIndex - 1]] = 
+                                  [reorderedSections[currentIndex - 1], reorderedSections[currentIndex]];
+                                
+                                reorderedSections.forEach((s, i) => s.order = i);
+                                CMSDataManager.saveDynamicSections(reorderedSections);
+                                loadSections();
+                                setHasChanges(true);
+                              } else if (e.key === 'ArrowDown' && currentIndex < sections.length - 1) {
+                                e.preventDefault();
+                                const reorderedSections = [...sections];
+                                [reorderedSections[currentIndex], reorderedSections[currentIndex + 1]] = 
+                                  [reorderedSections[currentIndex + 1], reorderedSections[currentIndex]];
+                                
+                                reorderedSections.forEach((s, i) => s.order = i);
+                                CMSDataManager.saveDynamicSections(reorderedSections);
+                                loadSections();
+                                setHasChanges(true);
+                              }
                             }
-                          }
-                        }}
-                        tabIndex={0}
-                      >
-                        <GripVertical className={`w-5 h-5 cursor-move ${
-                          isDragging ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'
-                        }`} />
-                      </button>
-                      
-                      {/* Collapse/Expand Button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleSectionCollapse(section.id);
-                        }}
-                        onMouseDown={(e) => e.stopPropagation()}
-                        className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                        title={isCollapsed ? 'Expand section' : 'Collapse section'}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-                      </button>
-                      
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {section.name}
-                        </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {section.layout} Layout • Order: {section.order}
-                        </p>
+                          }}
+                          tabIndex={0}
+                        >
+                          <GripVertical className={`w-4 h-4 cursor-move ${
+                            isDragging ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'
+                          }`} />
+                        </button>
+                        
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3">
+                            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                              {section.name}
+                            </h3>
+                            <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
+                              {section.layout}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              #{index + 1}
+                            </span>
+                            {!section.isVisible && (
+                              <span className="text-xs bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 px-2 py-1 rounded">
+                                HIDDEN
+                              </span>
+                            )}
+                            {section.includeInNavigation && (
+                              <span className="text-xs bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 px-2 py-1 rounded">
+                                NAV
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2" onMouseDown={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleVisibility(section.id);
-                        }}
-                        className="p-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                        title={section.isVisible ? 'Hide section' : 'Show section'}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {section.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                      </button>
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleNavigation(section.id);
-                        }}
-                        className={`p-2 rounded transition-colors ${
-                          section.includeInNavigation
-                            ? 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400'
-                            : 'text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                        }`}
-                        title={section.includeInNavigation ? 'Remove from navigation' : 'Include in navigation'}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <Menu className="w-4 h-4" />
-                      </button>
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDuplicateSection(section.id);
-                        }}
-                        className="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                        title="Duplicate section"
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <Copy className="w-4 h-4" />
-                      </button>
                       
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingSection(
-                            editingSection === section.id ? null : section.id
-                          );
-                        }}
-                        className={`p-2 rounded transition-colors ${
-                          editingSection === section.id
-                            ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400'
-                            : 'text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                        }`}
-                        title="Edit section"
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {editingSection === section.id ? <X className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
-                      </button>
-                      
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteSection(section.id);
-                        }}
-                        className="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
-                        title="Delete section"
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {/* Right side - Edit button */}
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleVisibility(section.id);
+                          }}
+                          className="p-1 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                          title={section.isVisible ? 'Hide section' : 'Show section'}
+                        >
+                          {section.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                        </button>
+                        
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingSection(
+                              editingSection === section.id ? null : section.id
+                            );
+                          }}
+                          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                            isEditing
+                              ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400'
+                              : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          }`}
+                          title={isEditing ? 'Close edit mode' : 'Edit section'}
+                        >
+                          {isEditing ? 'Done' : 'Edit'}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Navigation Label Input - Show when navigation is enabled */}
-                {!isCollapsed && section.includeInNavigation && (
-                  <div className="bg-green-50 dark:bg-green-900/20 border-t border-green-200 dark:border-green-800 px-6 py-4">
-                    <div className="flex items-center space-x-4">
-                      <Menu className="w-4 h-4 text-green-600 dark:text-green-400" />
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium text-green-700 dark:text-green-300 mb-2">
-                          Navigation Label
-                        </label>
-                        <input
-                          type="text"
-                          value={section.navigationLabel || ''}
-                          onChange={(e) => handleUpdateNavigationLabel(section.id, e.target.value)}
-                          placeholder={section.name}
-                          className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-green-300 dark:border-green-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 dark:text-white"
-                        />
-                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                          This label will appear in the header navigation. Leave empty to use section name.
-                        </p>
-                      </div>
-                      <div className="text-sm text-green-600 dark:text-green-400">
-                        <div className="bg-green-100 dark:bg-green-900/40 px-3 py-2 rounded-lg">
-                          <div className="font-medium">Preview:</div>
-                          <div className="text-xs mt-1">
-                            "{section.navigationLabel || section.name}"
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Section Preview - Only show if not collapsed */}
-                {!isCollapsed && (
-                  <div className={`${section.isVisible ? '' : 'opacity-50'}`}>
-                    {editingSection === section.id && (
-                      <div className="bg-blue-50 dark:bg-blue-900/20 border-t border-blue-200 dark:border-blue-800 px-6 py-3 flex items-center justify-between">
+                {/* Edit View - Expanded when editing */}
+                {isEditing && (
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg shadow-neumorphic border-0 mt-2">
+                    {/* Edit Header */}
+                    <div className="px-4 py-3 border-b border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                           <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                            Editing Mode - Make your changes below
+                            Editing: {section.name}
                           </span>
                         </div>
-                        <button
-                          onClick={() => setEditingSection(null)}
-                          className="px-4 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
-                        >
-                          Done Editing
-                        </button>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleToggleNavigation(section.id)}
+                            className={`px-2 py-1 rounded text-xs transition-colors ${
+                              section.includeInNavigation
+                                ? 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400'
+                                : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                            }`}
+                            title={section.includeInNavigation ? 'Remove from navigation' : 'Include in navigation'}
+                          >
+                            <Menu className="w-3 h-3 mr-1 inline" />
+                            {section.includeInNavigation ? 'In Nav' : 'Add to Nav'}
+                          </button>
+                          
+                          <button
+                            onClick={() => handleDuplicateSection(section.id)}
+                            className="px-2 py-1 bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded text-xs hover:bg-blue-200 dark:hover:bg-blue-900/40"
+                            title="Duplicate section"
+                          >
+                            <Copy className="w-3 h-3 mr-1 inline" />
+                            Duplicate
+                          </button>
+                          
+                          <button
+                            onClick={() => handleDeleteSection(section.id)}
+                            className="px-2 py-1 bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400 rounded text-xs hover:bg-red-200 dark:hover:bg-red-900/40"
+                            title="Delete section"
+                          >
+                            <Trash2 className="w-3 h-3 mr-1 inline" />
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Navigation Label Input - Show when navigation is enabled */}
+                    {section.includeInNavigation && (
+                      <div className="px-4 py-3 border-b border-blue-200 dark:border-blue-800">
+                        <div className="flex items-center space-x-4">
+                          <Menu className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          <div className="flex-1">
+                            <label className="block text-sm font-medium text-green-700 dark:text-green-300 mb-2">
+                              Navigation Label
+                            </label>
+                            <input
+                              type="text"
+                              value={section.navigationLabel || ''}
+                              onChange={(e) => handleUpdateNavigationLabel(section.id, e.target.value)}
+                              placeholder={section.name}
+                              className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-green-300 dark:border-green-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 dark:text-white"
+                            />
+                            <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                              This label will appear in the header navigation. Leave empty to use section name.
+                            </p>
+                          </div>
+                          <div className="text-sm text-green-600 dark:text-green-400">
+                            <div className="bg-green-100 dark:bg-green-900/40 px-3 py-2 rounded-lg">
+                              <div className="font-medium">Preview:</div>
+                              <div className="text-xs mt-1">
+                                "{section.navigationLabel || section.name}"
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
-                    <div className={`border-4 transition-colors ${
-                      editingSection === section.id 
-                        ? 'border-blue-400 dark:border-blue-600' 
-                        : 'border-transparent hover:border-gray-200 dark:hover:border-gray-600'
-                    }`}>
-                      {renderSectionPreview(section)}
-                    </div>
-                  </div>
-                )}
 
-                {/* Collapsed State Info */}
-                {isCollapsed && (
-                  <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50">
-                    <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
-                      <div className="flex items-center space-x-4">
-                        <span>Section collapsed</span>
-                        <span className="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">
-                          {section.layout.toUpperCase()}
-                        </span>
-                        {!section.isVisible && (
-                          <span className="text-xs bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 px-2 py-1 rounded">
-                            HIDDEN
-                          </span>
-                        )}
-                        {section.includeInNavigation && (
-                          <span className="text-xs bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 px-2 py-1 rounded">
-                            NAV: {section.navigationLabel || section.name}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center space-x-2 text-xs">
-                        <span>Created: {new Date(section.createdAt).toLocaleDateString()}</span>
-                        <span>•</span>
-                        <span>Updated: {new Date(section.updatedAt).toLocaleDateString()}</span>
+                    {/* Section Styling Panel */}
+                    <div className="px-4 py-3 border-b border-blue-200 dark:border-blue-800">
+                      <SectionStylingPanel
+                        styling={section.styling}
+                        onUpdate={(styling) => handleUpdateSectionStyling(section.id, styling)}
+                        isOpen={true}
+                        onToggle={() => {}} // Always open in edit mode
+                      />
+                    </div>
+
+                    {/* Section Preview */}
+                    <div className={`${section.isVisible ? '' : 'opacity-50'}`}>
+                      <div className="border-4 border-blue-400 dark:border-blue-600">
+                        {renderSectionPreview(section)}
                       </div>
                     </div>
                   </div>
                 )}
-
-                {/* Section Styling Panel */}
-                <SectionStylingPanel
-                  styling={section.styling}
-                  onUpdate={(styling) => handleUpdateSectionStyling(section.id, styling)}
-                  isOpen={stylingPanelOpen.has(section.id)}
-                  onToggle={() => toggleStylingPanel(section.id)}
-                />
-              </div>
               </React.Fragment>
             );
           })}
@@ -828,7 +764,7 @@ export default function CMSSections() {
           {/* Bottom Drop Zone */}
           {draggedTemplate && (
             <div 
-              className="h-16 border-2 border-dashed border-blue-400 dark:border-blue-500 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center"
+              className="h-12 border-2 border-dashed border-blue-400 dark:border-blue-500 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center"
               onDragOver={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -861,19 +797,11 @@ export default function CMSSections() {
                   // Automatically enter edit mode for the new section
                   setEditingSection(newSection.id);
                   
-                  // Scroll to the new section
-                  setTimeout(() => {
-                    const element = document.querySelector(`[data-section-id="${newSection.id}"]`);
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                  }, 100);
-                  
                   setDraggedTemplate(null);
                 }
               }}
             >
-              <div className="text-blue-600 dark:text-blue-400 font-medium">
+              <div className="text-blue-600 dark:text-blue-400 font-medium text-sm">
                 Drop here to add at the bottom
               </div>
             </div>
@@ -899,12 +827,6 @@ export default function CMSSections() {
               </div>
             )}
           </div>
-
-          {/* Section Types Sidebar */}
-          <SectionTypeSidebar
-            onDragStart={handleTemplateDragStart}
-            onDragEnd={handleTemplateDragEnd}
-          />
         </div>
 
         {/* Drag Instructions */}
