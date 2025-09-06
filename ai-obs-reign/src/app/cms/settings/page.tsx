@@ -592,7 +592,12 @@ export default function CMSSettings() {
                   <label className="block text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">Role</label>
                   <select
                     value={newUser.role}
-                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value as 'admin' | 'manager' | 'editor' })}
+                    onChange={(e) =>
+                      setNewUser({
+                        ...newUser,
+                        role: e.target.value as typeof newUser.role,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                   >
                     <option value="editor">Editor</option>
