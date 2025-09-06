@@ -6,6 +6,7 @@ import SectionTypeModal from '@/components/cms/SectionTypeModal';
 import SectionStylingPanel from '@/components/cms/SectionStylingPanel';
 import { CMSDataManager } from '@/lib/cms-data';
 import { DynamicSection, createSection, SectionTemplate, SectionStyling } from '@/lib/dynamic-sections';
+import { SectionStylingUtils } from '@/lib/section-styling';
 import { 
   Plus, 
   Trash2, 
@@ -17,7 +18,8 @@ import {
   X,
   ChevronDown,
   ChevronUp,
-  Copy
+  Copy,
+  Menu
 } from 'lucide-react';
 
 // Import section components
@@ -74,6 +76,17 @@ export default function CMSSections() {
     if (section) {
       CMSDataManager.updateDynamicSection(sectionId, {
         isVisible: !section.isVisible
+      });
+      loadSections();
+      setHasChanges(true);
+    }
+  };
+
+  const handleToggleNavigation = (sectionId: string) => {
+    const section = sections.find(s => s.id === sectionId);
+    if (section) {
+      CMSDataManager.updateDynamicSection(sectionId, {
+        includeInNavigation: !section.includeInNavigation
       });
       loadSections();
       setHasChanges(true);
@@ -216,6 +229,34 @@ export default function CMSSections() {
     setDragOverSection(null);
   };
 
+  const getSectionCardStyling = (section: DynamicSection) => {
+    // Get the section's background styling and adapt it for the card
+    const { containerStyle } = SectionStylingUtils.getSectionStyles(section.styling);
+    
+    // Create a subtle version of the section's background for the card
+    let cardStyle: React.CSSProperties = {};
+    
+    if (containerStyle.background) {
+      // For gradients, create a more subtle overlay effect
+      if (typeof containerStyle.background === 'string' && containerStyle.background.includes('gradient')) {
+        // Create a subtle version of the gradient as an overlay
+        cardStyle.backgroundImage = `${containerStyle.background}, linear-gradient(135deg, rgba(249, 250, 251, 0.9) 0%, rgba(243, 244, 246, 0.9) 100%)`;
+        cardStyle.backgroundBlendMode = 'overlay';
+      } else {
+        // For solid colors, use as a subtle tint
+        cardStyle.background = `linear-gradient(135deg, rgba(249, 250, 251, 0.85) 0%, rgba(243, 244, 246, 0.85) 100%), ${containerStyle.background}`;
+      }
+    } else if (containerStyle.backgroundColor) {
+      // For solid background colors, blend with the card background
+      cardStyle.background = `linear-gradient(135deg, rgba(249, 250, 251, 0.85) 0%, rgba(243, 244, 246, 0.85) 100%), ${containerStyle.backgroundColor}`;
+    } else {
+      // Default neumorphic background
+      cardStyle.background = 'linear-gradient(135deg, rgba(249, 250, 251, 0.95) 0%, rgba(243, 244, 246, 0.95) 100%)';
+    }
+    
+    return cardStyle;
+  };
+
   const renderSectionPreview = (section: DynamicSection) => {
     const isEditing = editingSection === section.id;
     
@@ -272,7 +313,7 @@ export default function CMSSections() {
             
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg btn-neumorphic hover:from-blue-600 hover:to-blue-700 flex items-center space-x-2 border-0"
             >
               <Plus className="w-4 h-4" />
               <span>Add Section</span>
@@ -302,13 +343,17 @@ export default function CMSSections() {
                   onDragOver={(e) => handleDragOver(e, section.id)}
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, section.id)}
-                  className={`bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg transition-all duration-200 ${
+                  className={`rounded-lg transition-all duration-200 ${
                     isDragging 
                       ? 'opacity-50 scale-95 shadow-neumorphic-hover cursor-grabbing' 
                       : isDragOver 
                       ? 'shadow-neumorphic-hover transform -translate-y-1' 
                       : 'shadow-neumorphic hover:shadow-neumorphic-hover cursor-grab'
                   } border-0`}
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(249, 250, 251, 0.95) 0%, rgba(243, 244, 246, 0.95) 100%)',
+                    ...getSectionCardStyling(section)
+                  }}
                 >
                 {/* Section Header */}
                 <div 
@@ -391,6 +436,22 @@ export default function CMSSections() {
                         style={{ cursor: 'pointer' }}
                       >
                         {section.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                      </button>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleNavigation(section.id);
+                        }}
+                        className={`p-2 rounded transition-colors ${
+                          section.includeInNavigation
+                            ? 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400'
+                            : 'text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        }`}
+                        title={section.includeInNavigation ? 'Remove from navigation' : 'Include in navigation'}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <Menu className="w-4 h-4" />
                       </button>
 
                       <button
@@ -481,6 +542,11 @@ export default function CMSSections() {
                             HIDDEN
                           </span>
                         )}
+                        {section.includeInNavigation && (
+                          <span className="text-xs bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 px-2 py-1 rounded">
+                            IN NAV
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center space-x-2 text-xs">
                         <span>Created: {new Date(section.createdAt).toLocaleDateString()}</span>
@@ -515,7 +581,7 @@ export default function CMSSections() {
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center space-x-2"
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg btn-neumorphic hover:from-blue-600 hover:to-blue-700 inline-flex items-center space-x-2 border-0"
             >
               <Plus className="w-4 h-4" />
               <span>Add First Section</span>

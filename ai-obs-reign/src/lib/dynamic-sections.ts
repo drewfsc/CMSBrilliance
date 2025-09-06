@@ -27,6 +27,7 @@ export interface DynamicSection {
   layout: SectionLayout;
   order: number;
   isVisible: boolean;
+  includeInNavigation: boolean; // Whether to show in header navigation
   fields: Record<string, any>; // Actual content values
   schema: SectionField[]; // Field definitions
   styling: SectionStyling; // Visual styling options
@@ -204,6 +205,7 @@ export function createSection(template: SectionTemplate, name: string): DynamicS
     layout: template.layout,
     order: 0, // Will be set based on existing sections
     isVisible: true,
+    includeInNavigation: false, // Default to false, user can enable
     fields,
     schema: template.defaultFields,
     styling: getDefaultStyling(template.layout),

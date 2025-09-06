@@ -677,8 +677,13 @@ export class CMSDataManager {
     
     const sections = JSON.parse(data);
     
-    // Ensure all sections have styling property
+    // Ensure all sections have styling property and navigation field
     return sections.map((section: DynamicSection) => {
+      // Add includeInNavigation field if missing
+      if (section.includeInNavigation === undefined) {
+        section.includeInNavigation = false;
+      }
+      
       if (!section.styling) {
         // Add default styling based on layout
         const getDefaultStyling = (layout: string): SectionStyling => {

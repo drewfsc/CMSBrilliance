@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Menu, X, LogOut, Settings } from 'lucide-react';
 import { CMSAuthManager } from '@/lib/cms-auth';
+import { CMSDataManager } from '@/lib/cms-data';
 import LeadCaptureModal from '@/components/ui/LeadCaptureModal';
 
 const Header = () => {
@@ -13,15 +14,27 @@ const Header = () => {
   const [userDisplayName, setUserDisplayName] = useState('');
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [isGetStartedModalOpen, setIsGetStartedModalOpen] = useState(false);
+  const [navigation, setNavigation] = useState([
+    { name: 'Home', href: '/' }
+  ]);
   const router = useRouter();
 
-  const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'Features', href: '#features' },
-    { name: 'Solutions', href: '#solutions' },
-    { name: 'About', href: '#about' },
-    { name: 'Contact', href: '#contact' },
-  ];
+  // Load dynamic navigation items
+  useEffect(() => {
+    const dynamicSections = CMSDataManager.getDynamicSections();
+    const navigationSections = dynamicSections
+      .filter(section => section.isVisible && section.includeInNavigation)
+      .sort((a, b) => a.order - b.order)
+      .map(section => ({
+        name: section.name,
+        href: `#${section.id}`
+      }));
+
+    setNavigation([
+      { name: 'Home', href: '/' },
+      ...navigationSections
+    ]);
+  }, []);
 
   useEffect(() => {
     // Check authentication status

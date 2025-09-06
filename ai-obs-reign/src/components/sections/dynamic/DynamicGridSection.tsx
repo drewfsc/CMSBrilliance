@@ -73,6 +73,7 @@ const DynamicGridSection: React.FC<DynamicGridSectionProps> = ({ section, isEdit
 
   return (
     <section 
+      id={section.id}
       className={`relative ${containerClass}`}
       style={containerStyle}
     >

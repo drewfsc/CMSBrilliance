@@ -61,7 +61,7 @@ export default function CMSSettings() {
             return (
               <div
                 key={category.name}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow cursor-pointer"
+                className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic hover:shadow-neumorphic-hover transition-all duration-300 cursor-pointer border-0"
               >
                 <div className={`w-12 h-12 rounded-lg ${category.color} flex items-center justify-center mb-4`}>
                   <Icon className="w-6 h-6" />
@@ -79,7 +79,7 @@ export default function CMSSettings() {
         </div>
 
         {/* Site Colors Configuration */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8 mb-8">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic p-8 mb-8 border-0">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Site Colors</h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
             Configure the color palette available for section backgrounds. These colors will be available when styling individual sections.
@@ -115,7 +115,7 @@ export default function CMSSettings() {
         </div>
 
         {/* Quick Settings Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic p-8 border-0">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Quick Settings</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

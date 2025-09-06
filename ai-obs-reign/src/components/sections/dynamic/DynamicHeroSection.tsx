@@ -36,6 +36,7 @@ const DynamicHeroSection: React.FC<DynamicHeroSectionProps> = ({ section, isEdit
 
   return (
     <section 
+      id={section.id}
       className={`relative ${containerClass}`}
       style={containerStyle}
     >

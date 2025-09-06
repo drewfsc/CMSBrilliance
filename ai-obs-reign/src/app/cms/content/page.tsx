@@ -191,7 +191,7 @@ export default function CMSContent() {
         {activeTab === 'hero' && (
           <div className="space-y-8">
             {/* Badge Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic p-6 border-0">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Badge</h3>
               <div className="space-y-4">
                 <div>
@@ -221,7 +221,7 @@ export default function CMSContent() {
             </div>
 
             {/* Title Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic p-6 border-0">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Title</h3>
               <div className="space-y-4">
                 <div>
@@ -250,7 +250,7 @@ export default function CMSContent() {
             </div>
 
             {/* Description Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic p-6 border-0">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Description</h3>
               <textarea
                 value={heroData.description}
@@ -262,7 +262,7 @@ export default function CMSContent() {
             </div>
 
             {/* Benefits Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic p-6 border-0">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Benefits</h3>
                 <button
@@ -298,7 +298,7 @@ export default function CMSContent() {
             </div>
 
             {/* CTA Buttons Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic p-6 border-0">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Call-to-Action Buttons</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -368,7 +368,7 @@ export default function CMSContent() {
         {/* About Section Editor */}
         {activeTab === 'about' && aboutData && (
           <div className="space-y-8">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic p-6 border-0">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">About Section</h3>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Edit the About section content using the inline editor on the homepage, or use the direct editing links below.
@@ -396,7 +396,7 @@ export default function CMSContent() {
         {/* Features Section Editor */}
         {activeTab === 'features' && featuresData && (
           <div className="space-y-8">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic p-6 border-0">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Features Section</h3>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Edit the Features section content using the inline editor on the homepage, or use the direct editing links below.
@@ -424,7 +424,7 @@ export default function CMSContent() {
         {/* Solutions Section Editor */}
         {activeTab === 'solutions' && solutionsData && (
           <div className="space-y-8">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic p-6 border-0">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Solutions Section</h3>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Edit the Solutions section content using the inline editor on the homepage. Each solution has dynamic feature lists that can be added to, edited, and removed.
@@ -477,7 +477,7 @@ export default function CMSContent() {
         {/* Contact Section Editor */}
         {activeTab === 'contact' && contactData && (
           <div className="space-y-8">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-neumorphic p-6 border-0">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Contact Section</h3>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Edit the Contact section content using the inline editor on the homepage, or use the direct editing links below.
