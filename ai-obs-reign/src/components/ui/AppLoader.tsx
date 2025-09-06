@@ -20,8 +20,7 @@ const AppLoader = () => {
             </div>
             
             {/* Percentage below */}
-            <div className="text-white text-2xl font-light animate-percent">
-              100%
+            <div className="text-white text-2xl font-light before:content-['100%'] before:animate-percent">
             </div>
           </div>
           
