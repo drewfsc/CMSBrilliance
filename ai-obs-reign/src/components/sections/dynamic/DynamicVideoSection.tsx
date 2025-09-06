@@ -7,7 +7,7 @@ import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw, AlertCircle } from 
 interface DynamicVideoSectionProps {
   section: DynamicSection;
   isEditMode?: boolean;
-  onUpdate?: (section: DynamicSection) => void;
+  onUpdate?: (fields: Record<string, unknown>) => void;
 }
 
 const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
@@ -77,7 +77,7 @@ const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
   const getEmbedUrl = (url: string, platform: string): string | null => {
     const videoId = extractVideoId(url, platform);
     if (!videoId) {
-      setError(`Invalid ${platform} URL format`);
+      // Don't set error here - user might still be typing
       return null;
     }
 
@@ -218,11 +218,18 @@ const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
+  // Clear error when user starts typing in video URL
+  useEffect(() => {
+    if (error && videoUrl) {
+      setError(null);
+    }
+  }, [videoUrl, error]);
+
   const renderEmbeddedVideo = () => {
     if (videoType === 'youtube' || videoType === 'vimeo') {
       const embedUrl = getEmbedUrl(videoUrl, videoType);
       if (!embedUrl) {
-        setError('Invalid video URL');
+        // Don't set error here - user might still be typing
         return null;
       }
 
@@ -243,7 +250,7 @@ const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
     const videoSrc = videoType === 'upload' ? videoFile : videoUrl;
     
     if (!videoSrc) {
-      setError('No video source provided');
+      // Don't set error here - user might still be typing or selecting
       return null;
     }
 
@@ -293,7 +300,7 @@ const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
               <input
                 type="text"
                 value={section.fields.title as string || ''}
-                onChange={(e) => onUpdate?.({ ...section, fields: { ...section.fields, title: e.target.value } })}
+                onChange={(e) => onUpdate?.({ title: e.target.value })}
                 className="w-full px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 placeholder="Enter section title"
               />
@@ -306,7 +313,7 @@ const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
               <input
                 type="text"
                 value={section.fields.subtitle as string || ''}
-                onChange={(e) => onUpdate?.({ ...section, fields: { ...section.fields, subtitle: e.target.value } })}
+                onChange={(e) => onUpdate?.({ subtitle: e.target.value })}
                 className="w-full px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 placeholder="Enter section subtitle"
               />
@@ -318,7 +325,7 @@ const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
               </label>
               <select
                 value={videoType}
-                onChange={(e) => onUpdate?.({ ...section, fields: { ...section.fields, videoType: e.target.value } })}
+                onChange={(e) => onUpdate?.({ videoType: e.target.value })}
                 className="w-full px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
                 <option value="youtube">YouTube</option>
@@ -335,7 +342,7 @@ const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
               <input
                 type="url"
                 value={videoUrl}
-                onChange={(e) => onUpdate?.({ ...section, fields: { ...section.fields, videoUrl: e.target.value } })}
+                onChange={(e) => onUpdate?.({ videoUrl: e.target.value })}
                 className="w-full px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."
               />
@@ -355,7 +362,7 @@ const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
               </label>
               <select
                 value={aspectRatio}
-                onChange={(e) => onUpdate?.({ ...section, fields: { ...section.fields, aspectRatio: e.target.value } })}
+                onChange={(e) => onUpdate?.({ aspectRatio: e.target.value })}
                 className="w-full px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
                 <option value="16:9">16:9 (Widescreen)</option>
@@ -371,7 +378,7 @@ const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
                   type="checkbox"
                   id="autoplay"
                   checked={autoplay}
-                  onChange={(e) => onUpdate?.({ ...section, fields: { ...section.fields, autoplay: e.target.checked } })}
+                  onChange={(e) => onUpdate?.({ autoplay: e.target.checked })}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-blue-300 rounded"
                 />
                 <label htmlFor="autoplay" className="ml-2 block text-sm text-blue-700 dark:text-blue-300">
@@ -384,7 +391,7 @@ const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
                   type="checkbox"
                   id="muted"
                   checked={muted}
-                  onChange={(e) => onUpdate?.({ ...section, fields: { ...section.fields, muted: e.target.checked } })}
+                  onChange={(e) => onUpdate?.({ muted: e.target.checked })}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-blue-300 rounded"
                 />
                 <label htmlFor="muted" className="ml-2 block text-sm text-blue-700 dark:text-blue-300">
@@ -397,7 +404,7 @@ const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
                   type="checkbox"
                   id="loop"
                   checked={loop}
-                  onChange={(e) => onUpdate?.({ ...section, fields: { ...section.fields, loop: e.target.checked } })}
+                  onChange={(e) => onUpdate?.({ loop: e.target.checked })}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-blue-300 rounded"
                 />
                 <label htmlFor="loop" className="ml-2 block text-sm text-blue-700 dark:text-blue-300">
@@ -410,7 +417,7 @@ const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
                   type="checkbox"
                   id="showControls"
                   checked={showControls}
-                  onChange={(e) => onUpdate?.({ ...section, fields: { ...section.fields, showControls: e.target.checked } })}
+                  onChange={(e) => onUpdate?.({ showControls: e.target.checked })}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-blue-300 rounded"
                 />
                 <label htmlFor="showControls" className="ml-2 block text-sm text-blue-700 dark:text-blue-300">
@@ -428,9 +435,23 @@ const DynamicVideoSection: React.FC<DynamicVideoSectionProps> = ({
             {videoUrl ? (
               <div className={`relative ${getAspectRatioClass(aspectRatio)} bg-gray-900 rounded-lg overflow-hidden`}>
                 {(videoType === 'youtube' || videoType === 'vimeo') ? (
-                  renderEmbeddedVideo()
+                  renderEmbeddedVideo() || (
+                    <div className="flex items-center justify-center h-full text-gray-400">
+                      <div className="text-center">
+                        <Play className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">Enter a valid {videoType === 'youtube' ? 'YouTube' : 'Vimeo'} URL</p>
+                      </div>
+                    </div>
+                  )
                 ) : (
-                  renderCustomVideo()
+                  renderCustomVideo() || (
+                    <div className="flex items-center justify-center h-full text-gray-400">
+                      <div className="text-center">
+                        <Play className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">Enter a valid video URL</p>
+                      </div>
+                    </div>
+                  )
                 )}
               </div>
             ) : (

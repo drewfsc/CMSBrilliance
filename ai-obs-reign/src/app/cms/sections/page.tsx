@@ -134,9 +134,16 @@ export default function CMSSections() {
   };
 
   const handleUpdateSection = (sectionId: string, fields: Record<string, unknown>) => {
-    CMSDataManager.updateDynamicSection(sectionId, { fields });
-    loadSections();
-    setHasChanges(true);
+    const sections = CMSDataManager.getDynamicSections();
+    const section = sections.find(s => s.id === sectionId);
+    
+    if (section) {
+      // Merge the new fields with existing fields
+      const updatedFields = { ...section.fields, ...fields };
+      CMSDataManager.updateDynamicSection(sectionId, { fields: updatedFields });
+      loadSections();
+      setHasChanges(true);
+    }
   };
 
   const handleUpdateSectionStyling = (sectionId: string, styling: SectionStyling) => {
